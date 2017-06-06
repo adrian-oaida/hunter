@@ -69,7 +69,7 @@ int enter_block(int static_block_nr, int worker_id){
     return new_trace_block.dynamic_id;
 }
 
-void trace_variable(int value, int basic_block_id){
+void data_flow_trace(int from_block_id, int to_block_id){
     pthread_mutex_lock(&print_lock);
     printf("DF %d %d\n", value, basic_block_id);
     data_edges++;

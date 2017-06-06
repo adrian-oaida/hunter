@@ -96,8 +96,8 @@ void *worker(void *arg){
         //supposed to print data edges here, somehow...
         //and increment them by two..
 
-        trace_variable(previous_basic_block_id ,basic_block_id);
-        trace_variable(shadow_data[i] ,basic_block_id);
+        data_flow_trace(previous_basic_block_id ,basic_block_id);
+        data_flow_trace(shadow_data[i] ,basic_block_id);
 
         previous_basic_block_id = basic_block_id;
 
