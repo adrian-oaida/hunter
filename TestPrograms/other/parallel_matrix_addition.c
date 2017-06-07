@@ -12,7 +12,7 @@ int n, m;
 void *worker(void *arg);
 
 int main(int argc, char *argv[]){
-    FILE *f = fopen("matrix_input", "r");
+    FILE *f = fopen("matrix_addition_input", "r");
 
     fscanf(f, "%d %d\n", &n, &m);
 
@@ -41,10 +41,11 @@ int main(int argc, char *argv[]){
 
     enter_block(1, 0);
 
+    enter_block(2, 0);
     for(int i = 0; i < n; i++){
+        enter_block(3, 0);
         for(int j = 0; j < m; j++){
-            enter_block(2, 0);
-            basic_block_id = enter_block(3, 0);
+            basic_block_id = enter_block(4, 0);
 
             data_flow_trace(shadow_m_a[i][j], basic_block_id);
 
@@ -52,14 +53,17 @@ int main(int argc, char *argv[]){
 
             shadow_m_a[i][j] = basic_block_id;
             exit_block(0);
-            exit_block(0);
 
         }
+        exit_block(0);
     }
+    exit_block(0);
+
+    enter_block(2, 0);
     for(int i = 0; i < n; i++){
+        enter_block(3, 0);
         for(int j = 0; j < m; j++){
-            enter_block(4, 0);
-            basic_block_id = enter_block(5, 0);
+            basic_block_id = enter_block(4, 0);
 
             data_flow_trace(shadow_m_b[i][j], basic_block_id);
 
@@ -67,9 +71,10 @@ int main(int argc, char *argv[]){
 
             shadow_m_b[i][j] = basic_block_id;
             exit_block(0);
-            exit_block(0);
         }
+        exit_block(0);
     }
+    exit_block(0);
 
     fclose(f);
 
@@ -81,6 +86,8 @@ int main(int argc, char *argv[]){
         pthread_join(worker_ids[i], NULL);
     }
 
+    free(m_a);
+    free(m_b);
     f = fopen("matrix_addition_result", "w");
     fprintf(f, "%d %d \r\n", n, m);
 
@@ -104,6 +111,9 @@ int main(int argc, char *argv[]){
 
 
     exit_block(0);
+
+    free(m_r);
+
     trace_end();
     return 0;
 }
@@ -111,6 +121,7 @@ void *worker(void *arg){
     int worker_id = (int)arg;
 
     int basic_block_id;
+
 
     for(int j = 0; j < m; j++){
         enter_block(6, worker_id + 1);
