@@ -4,5 +4,6 @@
 #include "barrier.h"
 #include "stack.h"
 #include "trace_helper.h"
+#include "matrix_op.h"
 
 #endif
