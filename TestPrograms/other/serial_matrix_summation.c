@@ -108,6 +108,7 @@ int main(int argc, char *argv[]){
         }
     }
 
+    exit_block(1);
 
     enter_block(6, 1);
     f = fopen("matrix_addition_result", "w");
