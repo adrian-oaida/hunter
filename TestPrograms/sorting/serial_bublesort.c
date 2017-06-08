@@ -27,27 +27,26 @@ int main(int argc, char *argv[]){
     for(int i = 0; i < n; i++){
         enter_block(2, 1);
         for(int j = 0; j < n - 1; j++){
-            basic_block_id = enter_block(3, 1);
-            data_flow_trace(shadow_array[j], basic_block_id);
-            data_flow_trace(shadow_array[j + 1], basic_block_id);
-
+            enter_block(3, 1);
+            //it doesn't matter how the programer choose to express, the fingerprint is the way the data is assigned
+            //
             if(array[j] > array[j + 1]){
                 basic_block_id = enter_block(4, 1);
 
                 swap = array[j + 1];
                 data_flow_trace(shadow_array[j + 1], basic_block_id);
                 shadow_swap = basic_block_id;
-                exit_block(1);
-
-                basic_block_id = enter_block(5, 1);
+//                exit_block(1);
+//
+//                basic_block_id = enter_block(5, 1);
                 data_flow_trace(shadow_array[j], basic_block_id);
 
                 array[j + 1] = array[j];
 
                 shadow_array[j + 1] = basic_block_id;
-                exit_block(1);
-
-                basic_block_id = enter_block(6, 1);
+//                exit_block(1);
+//
+//                basic_block_id = enter_block(6, 1);
 
                 data_flow_trace(shadow_swap, basic_block_id);
 
