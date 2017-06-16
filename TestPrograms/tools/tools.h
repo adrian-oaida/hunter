@@ -5,5 +5,8 @@
 #include "stack.h"
 #include "trace_helper.h"
 #include "matrix_op.h"
+#include "file_operations.h"
 
+void init_int_array(int *array, int size);
+int *create_and_init_int_array(int size);
 #endif
