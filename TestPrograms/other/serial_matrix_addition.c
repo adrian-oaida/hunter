@@ -13,7 +13,7 @@ int **m_a, **m_b, **m_r;
 int **shadow_m_a, **shadow_m_b, **shadow_m_r;
 
 int main(int argc, char *argv[]){
-    FILE *f = fopen("matrix_addition_input", "r");
+    FILE *f = fopen(argv[1], "r");
     int n, m;
     fscanf(f, "%d %d\n", &n, &m);
 
@@ -102,7 +102,7 @@ int main(int argc, char *argv[]){
     free(m_a);
     free(m_b);
 
-    f = fopen("matrix_addition_result", "w");
+    f = fopen(argv[2], "w");
     fprintf(f, "%d %d \r\n", n, m);
 
     for(int i=0; i < n; i++){

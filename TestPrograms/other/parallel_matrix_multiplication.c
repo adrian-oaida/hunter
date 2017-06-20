@@ -24,7 +24,7 @@ int main(int argc, char *argv[]){
 
 
     FILE *f;
-    f = fopen("matrix_multiplication_input", "r");
+    f = fopen(argv[1], "r");
 
     fscanf(f, "%d %d %d", &n, &m, &p);
 
@@ -77,7 +77,7 @@ int main(int argc, char *argv[]){
     free(m_a);
     free(m_b);
 
-    f = fopen("matrix_multiplication_result", "w");
+    f = fopen(argv[2], "w");
 
     fprintf(f, "%d %d\r\n", n, p);
 
