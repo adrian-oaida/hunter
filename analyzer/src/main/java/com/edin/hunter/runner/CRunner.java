@@ -2,6 +2,7 @@ package com.edin.hunter.runner;
 
 
 
+import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.graph.implementations.MultiNode;
@@ -99,14 +100,20 @@ public class CRunner extends BaseRunner {
                         dynamicCallGraph.addNode(args[0]);
                     if(dynamicCallGraph.getNode(args[2]) == null)
                         dynamicCallGraph.addNode(args[2]);
-                    dynamicCallGraph.addEdge("" + dynamicEdgeCounter++, args[0], args[2], true);
+
+                    Edge dynamicEdge = dynamicCallGraph.addEdge("" + dynamicEdgeCounter++, args[0], args[2], true);
+                    dynamicEdge.addAttribute("fromTo", args[1], args[3]);
 
                     if(staticCallGraph.getNode(args[1]) == null)
                         staticCallGraph.addNode(args[1]);
                     if(staticCallGraph.getNode(args[3]) == null)
                         staticCallGraph.addNode(args[3]);
-                    staticCallGraph.addEdge("" + staticEdgeCounter++, args[1], args[3], true);
+
+                    Edge staticEdge = staticCallGraph.addEdge("" + staticEdgeCounter++, args[1], args[3], true);
+                    staticEdge.addAttribute("fromTo", args[0], args[2]);
+
                 }
+                //TODO add data flow attribute of containing basic block
                 if(line.startsWith("DF")){
                     String[] args = line.replace("DF", "").trim().split(" ");
 
@@ -114,6 +121,7 @@ public class CRunner extends BaseRunner {
                         dataFlowGraph.addNode(args[0]);
                     if(dataFlowGraph.getNode(args[1]) == null)
                         dataFlowGraph.addNode(args[1]);
+
                     dataFlowGraph.addEdge("" + dataFlowEdgeCounter++, args[0], args[1], true);
                 }
             }
