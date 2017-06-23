@@ -73,13 +73,17 @@ public class CRunner extends BaseRunner {
     @Override
     public void finalize(){
     }
+
     @Override
-    public void run(String firstArgument, String secondArgument) {
+    public void run(String ...programArgs) {
         dataFlowGraph = new MultiGraph("Data Flow Graph");
         staticCallGraph = new MultiGraph("Static Call Graph");
         dynamicCallGraph = new MultiGraph("Dynamic Call Graph");
+        List<String> arguments = new ArrayList<>();
+        arguments.add(executableFile.getPath());
+        arguments.addAll(Arrays.asList(programArgs));
 
-        ProcessBuilder pb = new ProcessBuilder(executableFile.getPath(), firstArgument, secondArgument);
+        ProcessBuilder pb = new ProcessBuilder(arguments);
         Process p = null;
         try {
             p = pb.start();

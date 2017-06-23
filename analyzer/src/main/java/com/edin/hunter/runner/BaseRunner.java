@@ -12,7 +12,7 @@ public abstract class BaseRunner {
     protected MultiGraph staticCallGraph;
 
 
-    public abstract void run(String firstArgument, String secondArgument);
+    public abstract void run(String ...programArgs);
 
     public Graph getDataFlowGraph(){
         return dataFlowGraph;
