@@ -91,26 +91,29 @@ void *worker(void *arg){
         enter_block(3, worker_id + 1);
         basic_block_id = enter_block(4, worker_id + 1);
 
-        data_flow_trace(shadow_previous_worker_state, basic_block_id);
-
-        data_flow_trace(shadow_data[i], basic_block_id);
-        shadow_data[i] = basic_block_id;
 
         data[i] += 1 + previous_worker_state;
 
+        data_flow_trace(shadow_previous_worker_state, basic_block_id, worker_id + 1);
+        data_flow_trace(shadow_data[i], basic_block_id, worker_id + 1);
+        shadow_data[i] = basic_block_id;
 
-        data_flow_trace(shadow_worker_state, basic_block_id);
+//        exit_block(worker_id + 1);
+//        basic_block_id = enter_block(5, worker_id + 1);
 
         previous_worker_state = worker_state;
 
+        data_flow_trace(shadow_worker_state, basic_block_id, worker_id + 1);
         shadow_previous_worker_state = basic_block_id;
 
 
+//        exit_block(worker_id + 1);
+//        basic_block_id = enter_block(6, worker_id + 1);
 
-        data_flow_trace(shadow_worker_state, basic_block_id);
 
         worker_state = worker_state + 1;
 
+        data_flow_trace(shadow_worker_state, basic_block_id, worker_id + 1);
         shadow_worker_state = basic_block_id;
 
 

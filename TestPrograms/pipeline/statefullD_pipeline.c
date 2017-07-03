@@ -88,16 +88,16 @@ void *worker(void *arg){
         basic_block_id = enter_block(4, worker_id + 1);
 
         if(i % 2 == 0) {
-            data_flow_trace(shadow_worker_state, basic_block_id);
-            data_flow_trace(shadow_data[i], basic_block_id);
+            data_flow_trace(shadow_worker_state, basic_block_id, worker_id + 1);
+            data_flow_trace(shadow_data[i], basic_block_id, worker_id + 1);
             if(i > 1){
-                data_flow_trace(shadow_data[i - 2], basic_block_id);
+                data_flow_trace(shadow_data[i - 2], basic_block_id, worker_id + 1);
                 worker_state = data[i - 2];
             }
 
             shadow_worker_state = basic_block_id;
 
-            data_flow_trace(shadow_data[i], basic_block_id);
+            data_flow_trace(shadow_data[i], basic_block_id, worker_id + 1);
 
             data[i] = data[i] + 1;
 
@@ -105,14 +105,14 @@ void *worker(void *arg){
         }else{
 
             worker_state = worker_state + 1;
-            data_flow_trace(shadow_worker_state, basic_block_id);
+            data_flow_trace(shadow_worker_state, basic_block_id, worker_id + 1);
             shadow_worker_state = basic_block_id;
 
 
-            data_flow_trace(shadow_data[i], basic_block_id);
+            data_flow_trace(shadow_data[i], basic_block_id, worker_id + 1);
             if(i > 1){
-                data_flow_trace(shadow_data[i - 2], basic_block_id);
-                data_flow_trace(shadow_worker_state, basic_block_id);
+                data_flow_trace(shadow_data[i - 2], basic_block_id, worker_id + 1);
+                data_flow_trace(shadow_worker_state, basic_block_id, worker_id + 1);
 
                 data[i] = worker_state + data[i - 2];
             }

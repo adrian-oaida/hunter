@@ -88,37 +88,35 @@ void *worker(void *arg){
 
     enter_block(2, worker_id + 1);
     for(int i = 0; i < data_size; i++){
-        enter_block(3, worker_id + 1);
-        basic_block_id = enter_block(4, worker_id + 1);
-
-        data_flow_trace(shadow_previous_worker_state, basic_block_id);
-
-        data_flow_trace(shadow_data[i], basic_block_id);
-        shadow_data[i] = basic_block_id;
+        basic_block_id = enter_block(3, worker_id + 1);
 
         data[i] += 1 + previous_worker_state;
 
-
-        data_flow_trace(shadow_worker_state, basic_block_id);
+        data_flow_trace(shadow_previous_worker_state, basic_block_id, worker_id + 1);
+        data_flow_trace(shadow_data[i], basic_block_id, worker_id + 1);
+        shadow_data[i] = basic_block_id;
+//        exit_block(worker_id + 1);
+//
+//        basic_block_id = enter_block(4, worker_id + 1);
 
         previous_worker_state = worker_state;
 
+        data_flow_trace(shadow_worker_state, basic_block_id, worker_id + 1);
         shadow_previous_worker_state = basic_block_id;
-
-
-
-        data_flow_trace(shadow_worker_state, basic_block_id);
+//        exit_block(worker_id + 1);
+//
+//        basic_block_id = enter_block(5, worker_id + 1);
 
         worker_state = worker_state + 1;
 
+        data_flow_trace(shadow_worker_state, basic_block_id, worker_id + 1);
         shadow_worker_state = basic_block_id;
-
-
-        exit_block(worker_id + 1);
         exit_block(worker_id + 1);
 
         //wait for other workers to catch up
         wait_for_barrier();
+
+
     }
     exit_block(worker_id + 1);
 
