@@ -6,7 +6,7 @@ void trace_end();
 
 int enter_block(int block_number, int worker_id);
 
-void data_flow_trace(int from_block_id, int to_block_id);
+void data_flow_trace(int from_block_id, int to_block_id, int worker_id);
 
 void exit_block(int worker_id);
 

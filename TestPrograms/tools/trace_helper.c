@@ -5,6 +5,7 @@
 
 #include <pthread.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "trace_helper.h"
 #include "stack.h"
 
@@ -63,15 +64,17 @@ int enter_block(int static_block_nr, int worker_id){
 
 
     pthread_mutex_lock(&print_lock);
+//    printf("BC %d %d %d %d\n", old_trace_block.static_id, old_trace_block.dynamic_id, new_trace_block.static_id, new_trace_block.dynamic_id);
     printf("BC %d %d %d %d\n", old_trace_block.dynamic_id, old_trace_block.static_id, new_trace_block.dynamic_id, new_trace_block.static_id);
+
     pthread_mutex_unlock(&print_lock);
 
     return new_trace_block.dynamic_id;
 }
 
-void data_flow_trace(int from_block_id, int to_block_id){
+void data_flow_trace(int from_block_id, int to_block_id, int worker_id){
     pthread_mutex_lock(&print_lock);
-    printf("DF %d %d\n", from_block_id, to_block_id);
+    printf("DF %d %d %d %d\n", from_block_id, to_block_id, stack_top(trace_stacks[worker_id]).static_id, stack_top(trace_stacks[worker_id]).dynamic_id);
     data_edges++;
     pthread_mutex_unlock(&print_lock);
 }
