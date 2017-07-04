@@ -25,9 +25,6 @@ public class CRunner extends BaseRunner {
     public CRunner(String pathToSource, String dependencyDirectory) throws Exception {
         super();
 
-        StringBuilder compileSourceFilesSB = new StringBuilder();
-
-
 
         try {
             executableFile = File.createTempFile("runner", "run");
@@ -51,15 +48,21 @@ public class CRunner extends BaseRunner {
         command.add(executableFile.getAbsolutePath());
         command.add("-lpthread");
         command.add("-lm");
+
         ProcessBuilder pb = new ProcessBuilder(command);
         System.out.println(pb.command());
         try {
 
-            pb.redirectError(new File("/tmp/runner.error"));
-            pb.redirectOutput(new File("/tmp/runner.output"));
-
             Process p = pb.start();
-
+            BufferedReader reader =
+                    new BufferedReader(new InputStreamReader(p.getErrorStream()));
+            StringBuilder builder = new StringBuilder();
+            String line = null;
+            while ( (line = reader.readLine()) != null) {
+                builder.append(line);
+                builder.append(System.getProperty("line.separator"));
+            }
+            System.out.println(builder.toString());
             p.waitFor();
 
             System.out.println(p.exitValue());
@@ -96,22 +99,33 @@ public class CRunner extends BaseRunner {
             int staticEdgeCounter = 1;
             int dynamicEdgeCounter = 1;
             int dataFlowEdgeCounter = 1;
+            String currentStaticBlockId = null;
             while( (line = reader.readLine()) != null){
                 if(line.startsWith("BC")){
                     String[] args = line.replace("BC", "").trim().split(" ");
 
-                    if(dynamicCallGraph.getNode(args[0]) == null)
-                        dynamicCallGraph.addNode(args[0]);
-                    if(dynamicCallGraph.getNode(args[2]) == null)
-                        dynamicCallGraph.addNode(args[2]);
+                    if(dynamicCallGraph.getNode(args[0]) == null){
+                        Node n = dynamicCallGraph.addNode(args[0]);
+                        n.setAttribute("label", args[0]);
+                    }
+                    if(dynamicCallGraph.getNode(args[2]) == null){
+                        Node n =dynamicCallGraph.addNode(args[2]);
+                        n.setAttribute("label", args[2]);
+
+                    }
 
                     Edge dynamicEdge = dynamicCallGraph.addEdge("" + dynamicEdgeCounter++, args[0], args[2], true);
                     dynamicEdge.addAttribute("fromTo", args[1], args[3]);
 
-                    if(staticCallGraph.getNode(args[1]) == null)
-                        staticCallGraph.addNode(args[1]);
-                    if(staticCallGraph.getNode(args[3]) == null)
-                        staticCallGraph.addNode(args[3]);
+                    if(staticCallGraph.getNode(args[1]) == null){
+                        Node n = staticCallGraph.addNode(args[1]);
+                        n.setAttribute("label", args[1]);
+                    }
+                    if(staticCallGraph.getNode(args[3]) == null){
+                        Node n = staticCallGraph.addNode(args[3]);
+                        n.setAttribute("label", args[3]);
+                        currentStaticBlockId = args[3];
+                    }
 
                     Edge staticEdge = staticCallGraph.addEdge("" + staticEdgeCounter++, args[1], args[3], true);
                     staticEdge.addAttribute("fromTo", args[0], args[2]);
@@ -121,12 +135,17 @@ public class CRunner extends BaseRunner {
                 if(line.startsWith("DF")){
                     String[] args = line.replace("DF", "").trim().split(" ");
 
-                    if(dataFlowGraph.getNode(args[0]) == null)
-                        dataFlowGraph.addNode(args[0]);
-                    if(dataFlowGraph.getNode(args[1]) == null)
-                        dataFlowGraph.addNode(args[1]);
-
-                    dataFlowGraph.addEdge("" + dataFlowEdgeCounter++, args[0], args[1], true);
+                    if(dataFlowGraph.getNode(args[0]) == null){
+                        Node n = dataFlowGraph.addNode(args[0]);
+                        n.setAttribute("label", args[0]);
+                    }
+                    if(dataFlowGraph.getNode(args[1]) == null){
+                        Node n = dataFlowGraph.addNode(args[1]);
+                        n.setAttribute("label", args[1]);
+                    }
+                    Edge e = dataFlowGraph.addEdge("" + dataFlowEdgeCounter++, args[0], args[1], true);
+                    e.setAttribute("label", args[2]);
+                    e.setAttribute("weight", 1);
                 }
             }
 
