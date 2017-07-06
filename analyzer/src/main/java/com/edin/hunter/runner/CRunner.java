@@ -1,12 +1,6 @@
 package com.edin.hunter.runner;
 
 
-
-import org.graphstream.graph.Edge;
-import org.graphstream.graph.Node;
-import org.graphstream.graph.implementations.MultiGraph;
-import org.graphstream.graph.implementations.MultiNode;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -14,6 +8,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by dude on 6/16/17.
@@ -79,9 +74,9 @@ public class CRunner extends BaseRunner {
 
     @Override
     public void run(String ...programArgs) {
-        dataFlowGraph = new MultiGraph("Data Flow Graph");
-        staticCallGraph = new MultiGraph("Static Call Graph");
-        dynamicCallGraph = new MultiGraph("Dynamic Call Graph");
+        dataFlowGraph = new Graph("Data Flow Graph");
+        staticCallGraph = new Graph("Static Call Graph");
+        dynamicCallGraph = new Graph("Dynamic Call Graph");
         List<String> arguments = new ArrayList<>();
         arguments.add(executableFile.getPath());
         arguments.addAll(Arrays.asList(programArgs));
@@ -96,56 +91,33 @@ public class CRunner extends BaseRunner {
         BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
         try {
             String line;
-            int staticEdgeCounter = 1;
-            int dynamicEdgeCounter = 1;
-            int dataFlowEdgeCounter = 1;
             String currentStaticBlockId = null;
             while( (line = reader.readLine()) != null){
                 if(line.startsWith("BC")){
-                    String[] args = line.replace("BC", "").trim().split(" ");
 
-                    if(dynamicCallGraph.getNode(args[0]) == null){
-                        Node n = dynamicCallGraph.addNode(args[0]);
-                        n.setAttribute("label", args[0]);
-                    }
-                    if(dynamicCallGraph.getNode(args[2]) == null){
-                        Node n =dynamicCallGraph.addNode(args[2]);
-                        n.setAttribute("label", args[2]);
+                    List<Integer> args = Arrays.stream(line.replace("BC", "").trim().split(" ")).map(Integer::parseInt).collect(Collectors.toList());
 
-                    }
+                    Node dynamicFromNode = dynamicCallGraph.getOrAddNode(args.get(0));
+                    Node dynamicToNode = dynamicCallGraph.getOrAddNode(args.get(2));
 
-                    Edge dynamicEdge = dynamicCallGraph.addEdge("" + dynamicEdgeCounter++, args[0], args[2], true);
-                    dynamicEdge.addAttribute("fromTo", args[1], args[3]);
+                    Edge dynamicEdge = dynamicFromNode.addEdgeTo(dynamicToNode);
+                    dynamicEdge.setAttribute("staticFromTo", args.get(1) + " -> " + args.get(3));
 
-                    if(staticCallGraph.getNode(args[1]) == null){
-                        Node n = staticCallGraph.addNode(args[1]);
-                        n.setAttribute("label", args[1]);
-                    }
-                    if(staticCallGraph.getNode(args[3]) == null){
-                        Node n = staticCallGraph.addNode(args[3]);
-                        n.setAttribute("label", args[3]);
-                        currentStaticBlockId = args[3];
-                    }
+                    Node staticFromNode = staticCallGraph.getOrAddNode(args.get(1));
+                    Node staticToNode  = staticCallGraph.getOrAddNode(args.get(3));
 
-                    Edge staticEdge = staticCallGraph.addEdge("" + staticEdgeCounter++, args[1], args[3], true);
-                    staticEdge.addAttribute("fromTo", args[0], args[2]);
+                    Edge staticEdge = staticFromNode.addEdgeTo(staticToNode);
+                    staticEdge.setAttribute("dynamicFromTo", args.get(0) + " -> " + args.get(2));
+
 
                 }
                 //TODO add data flow attribute of containing basic block
                 if(line.startsWith("DF")){
-                    String[] args = line.replace("DF", "").trim().split(" ");
+                    List<Integer> args = Arrays.stream(line.replace("DF", "").trim().split(" ")).map(elem -> Integer.parseInt(elem)).collect(Collectors.toList());
 
-                    if(dataFlowGraph.getNode(args[0]) == null){
-                        Node n = dataFlowGraph.addNode(args[0]);
-                        n.setAttribute("label", args[0]);
-                    }
-                    if(dataFlowGraph.getNode(args[1]) == null){
-                        Node n = dataFlowGraph.addNode(args[1]);
-                        n.setAttribute("label", args[1]);
-                    }
-                    Edge e = dataFlowGraph.addEdge("" + dataFlowEdgeCounter++, args[0], args[1], true);
-                    e.setAttribute("label", args[2]);
-                    e.setAttribute("weight", 1);
+                    Node fromNode = dataFlowGraph.getOrAddNode(args.get(0));
+                    Node toNode   = dataFlowGraph.getOrAddNode(args.get(1));
+                    fromNode.addEdgeTo(toNode);
                 }
             }
 

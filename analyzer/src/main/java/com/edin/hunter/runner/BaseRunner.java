@@ -1,15 +1,13 @@
 package com.edin.hunter.runner;
 
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.MultiGraph;
 
 /**
  * Created by dude on 6/16/17.
  */
 public abstract class BaseRunner {
-    protected MultiGraph dataFlowGraph;
-    protected MultiGraph dynamicCallGraph;
-    protected MultiGraph staticCallGraph;
+    protected Graph dataFlowGraph;
+    protected Graph dynamicCallGraph;
+    protected Graph staticCallGraph;
 
 
     public abstract void run(String ...programArgs);

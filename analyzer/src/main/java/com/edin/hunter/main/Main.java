@@ -3,12 +3,7 @@ package com.edin.hunter.main;
 import com.edin.hunter.matcher.Matcher;
 import com.edin.hunter.runner.BaseRunner;
 import com.edin.hunter.runner.CRunner;
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
-import org.graphstream.ui.swingViewer.ViewPanel;
-import org.graphstream.ui.view.View;
-import org.graphstream.ui.view.Viewer;
-
+import com.edin.hunter.runner.Graph;
 
 import javax.swing.*;
 
@@ -28,33 +23,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Created by dude on 6/16/17.
  */
 public class Main {
-    private static String styleSheet =
-            "node {" +
-                    "	text-color: blue; fill-color: black;" +
-                    "   text-mode: normal;" +
-                    "   text-background-mode: plain;" +
-                    "   text-size: 10;" +
-                    "   text-alignment: under;" +
-                    "}" +
-                    "node.leaf {" +
-                    "	text-color: red;" +
-                    "}" +
-                    "node.root {" +
-                    "	text-color: black;" +
-                    "}" +
-                    "node.visited {" +
-                    "fill-color: blue;"+
-                    "}"+
-            "edge {" +
-                    "   text-color: blue;size: 1px; fill-mode: dyn-plain;fill-color: black;" +
-                "}" + "" +
-                    "edge.visited {" +
-                    "fill-color: blue; size: 2px;"+
-                    "}";
+
 
     public static void main(String[] args){
-        System.setProperty("gs.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
-        System.setProperty("gs.ui.layout", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
 
 
         BaseRunner simplePipelineRunner = null,
@@ -80,6 +51,7 @@ public class Main {
 //        produceConsumerRunner.run("20", "");
 
         Map<String, Graph> graphList = new HashMap<>();
+
         statefullBPipelineRunner.getDataFlowGraph().removeNode(0);
 
 
@@ -108,22 +80,10 @@ public class Main {
 
         for(Map.Entry<String, Graph> g : graphList.entrySet()) {
 
-            g.getValue().setAttribute("ui.stylesheet", styleSheet);
-            g.getValue().addAttribute("ui.quality");
-            g.getValue().addAttribute("ui.antialias");
             Matcher matcher = new Matcher(g.getValue());
 
             JFrame frame = new JFrame(g.getKey());
 
-            Viewer viewer = new Viewer(matcher.getGraph(), Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
-            // Let the layout work ...
-
-//            viewer.disableAutoLayout();
-            // Do some work ...
-            viewer.enableAutoLayout();
-            ViewPanel view = viewer.addDefaultView(false);
-
-            frame.getContentPane().add(view);
             if(graphList.entrySet().size() == 1){
                 frame.getContentPane().setSize((currentDisplayDevice.getDefaultConfiguration().getBounds().width), (currentDisplayDevice.getDefaultConfiguration().getBounds().height));
                 frame.setSize((currentDisplayDevice.getDefaultConfiguration().getBounds().width), (currentDisplayDevice.getDefaultConfiguration().getBounds().height));
@@ -162,7 +122,6 @@ public class Main {
             frame.setVisible(true);
             i++;
             matcher.detect();
-
         }
 
 
