@@ -4,6 +4,7 @@ import com.edin.hunter.matcher.Matcher;
 import com.edin.hunter.runner.BaseRunner;
 import com.edin.hunter.runner.CRunner;
 import com.edin.hunter.runner.Graph;
+import com.edin.hunter.ui.GraphViewer;
 
 import javax.swing.*;
 
@@ -70,11 +71,6 @@ public class Main {
 
 
         AtomicInteger counter = new AtomicInteger(graphList.size());
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice[] devices = ge.getScreenDevices();
-        GraphicsDevice currentDisplayDevice = ge.getDefaultScreenDevice();
-        if(devices.length == 2)
-            currentDisplayDevice = devices[0];
 
         int i = 0;
 
@@ -82,46 +78,11 @@ public class Main {
 
             Matcher matcher = new Matcher(g.getValue());
 
-            JFrame frame = new JFrame(g.getKey());
+            GraphViewer viewer = new GraphViewer(g.getValue());
+            viewer.displayGraph();
 
-            if(graphList.entrySet().size() == 1){
-                frame.getContentPane().setSize((currentDisplayDevice.getDefaultConfiguration().getBounds().width), (currentDisplayDevice.getDefaultConfiguration().getBounds().height));
-                frame.setSize((currentDisplayDevice.getDefaultConfiguration().getBounds().width), (currentDisplayDevice.getDefaultConfiguration().getBounds().height));
-
-            }else{
-                frame.getContentPane().setSize((currentDisplayDevice.getDefaultConfiguration().getBounds().width/2), (currentDisplayDevice.getDefaultConfiguration().getBounds().height/2));
-                frame.setSize((currentDisplayDevice.getDefaultConfiguration().getBounds().width/2), (currentDisplayDevice.getDefaultConfiguration().getBounds().height/2));
-            }
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setAutoRequestFocus(true);
-
-            frame.addKeyListener(new KeyListener() {
-                @Override
-                public void keyTyped(KeyEvent e) {
-
-                    if(e.getKeyChar() == 'q'){
-                        ((JFrame)e.getSource()).dispose();
-                        if(counter.decrementAndGet() == 0)
-                            System.exit(0);
-
-                    }
-                }
-
-                @Override
-                public void keyPressed(KeyEvent e) {
-
-                }
-
-                @Override
-                public void keyReleased(KeyEvent e) {
-
-                }
-            });
-            frame.setLocation( currentDisplayDevice.getDefaultConfiguration().getBounds().x + (currentDisplayDevice.getDefaultConfiguration().getBounds().width/2) * ((i & 2) >> 1), currentDisplayDevice.getDefaultConfiguration().getBounds().y + (int)(currentDisplayDevice.getDefaultConfiguration().getBounds().height/2) * (i & 0x11));
-//            frame.pack();
-            frame.setVisible(true);
-            i++;
-            matcher.detect();
+//            matcher.detect();
+//            viewer.updateView();
         }
 
 

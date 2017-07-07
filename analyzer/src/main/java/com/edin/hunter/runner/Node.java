@@ -50,6 +50,9 @@ public class Node {
     public List<Edge> getAllEdges(){
         return Stream.concat(outgoingEdges.stream(), incomingEdges.stream()).collect(Collectors.toList());
     }
+    public List<Edge> getOutgoingEdges(){
+        return outgoingEdges;
+    }
     public int getInDegree(){
         return incomingEdges.size();
     }

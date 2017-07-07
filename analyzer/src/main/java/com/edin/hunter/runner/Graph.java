@@ -37,4 +37,21 @@ public class Graph implements Iterable<Node>{
     public Iterator<Node> iterator() {
         return nodeMap.values().iterator();
     }
+
+    public String toDotString(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("digraph "); sb.append(name.replace(" ", "")); sb.append(" {\n");
+        for(Node node : nodeMap.values()){
+            for(Edge edge : node.getOutgoingEdges()){
+                sb.append(edge.getSource());
+                sb.append(" -> ");
+                sb.append(edge.getTarget());
+                sb.append(";\n");
+            }
+        }
+
+        sb.append("\n}");
+
+        return sb.toString();
+    }
 }
