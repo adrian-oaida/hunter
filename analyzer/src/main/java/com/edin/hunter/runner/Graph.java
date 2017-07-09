@@ -8,6 +8,7 @@ import java.util.*;
 public class Graph implements Iterable<Node>{
     private String name;
     private Map<Integer, Node> nodeMap = new HashMap<>();
+    private int maxNodeId = 0;
 
     public Graph(String name){
         this.name = name;
@@ -22,7 +23,14 @@ public class Graph implements Iterable<Node>{
     public void removeNode(int nodeId){
         removeNode(nodeMap.get(nodeId));
     }
+
+    public int getMaxNodeId(){
+        return maxNodeId;
+    }
     public Node getOrAddNode(int nodeId){
+        if(nodeId > maxNodeId){
+            maxNodeId = nodeId;
+        }
         Node node;
         if(nodeMap.containsKey(nodeId)){
             node = nodeMap.get(nodeId);
@@ -42,6 +50,15 @@ public class Graph implements Iterable<Node>{
         StringBuilder sb = new StringBuilder();
         sb.append("digraph "); sb.append(name.replace(" ", "")); sb.append(" {\n");
         for(Node node : nodeMap.values()){
+
+            sb.append(node.toString());
+            sb.append(" [");
+                for(Map.Entry<String, String> attribute : node.getAttributeMap().entrySet()){
+                    sb.append(attribute.getKey()); sb.append("="); sb.append(attribute.getValue());
+                    sb.append(",");
+                }
+            sb.append("]");
+            sb.append(";\n");
             for(Edge edge : node.getOutgoingEdges()){
                 sb.append(edge.getSource());
                 sb.append(" -> ");
