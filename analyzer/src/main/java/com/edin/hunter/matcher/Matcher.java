@@ -34,6 +34,7 @@ public class Matcher {
     * @return
     * */
     public Graph detect(){
+        removeDuplicatedEdges();
         detectLatice();
         detectPipelineStages();
 
@@ -96,27 +97,39 @@ public class Matcher {
     private Node finish;
 
     private void removeDuplicatedEdges(){
-        Map<NodePair, Edge> edgeMap = new HashMap<>();
+        for(Node node : graph){
+            for(Node neighNode : node.getNeighbouringNodes()){
+                List<Edge> edges = node.getEdgesTowards(neighNode);
+                if(edges.size() > 1){
+                    for(int i = 1 ; i < edges.size(); i++){
+                        node.removeEdge(edges.get(i));
+                    }
+                }
+            }
+        }
 
     }
     private void markUpGraph(){
         for(Node n : graph){
+            n.setAttribute("color", "blue");
             if(n.getInDegree() == 0){
                 start =  n;
                 System.out.println("start " + start);
-                n.setAttribute("ui.class", "root");
+                n.setAttribute("shape", "box");
+                n.setAttribute("color", "red");
             }
             if(n.getOutDegree() == 0){
                 finish = n;
                 System.out.println("finish " + finish);
-                n.setAttribute("ui.class", "leaf");
+                n.setAttribute("shape", "box");
+                n.setAttribute("color", "black");
             }
             if(! n.getEdgesTowards(n).isEmpty()){
                 if(n.getInDegree() - 1 == 0){
-                    n.setAttribute("ui.class", "root");
+                    n.setAttribute("color", "red");
                 }
                 if(n.getOutDegree() - 1 == 0){
-                    n.setAttribute("ui.class", "leaf");
+                    n.setAttribute("color", "black");
                 }
             }
         }
