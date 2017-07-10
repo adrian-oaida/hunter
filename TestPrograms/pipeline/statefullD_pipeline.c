@@ -41,7 +41,7 @@ int main(int argc, char *argv[]){
     init_barrier(num_workers);
 
     data = create_and_init_int_array(data_size);
-    shadow_data = create_and_init_int_array(data_size);
+    shadow_data = get_trace_array(data_size);
 
     trace_init();
     enter_block(1, 0);
@@ -111,6 +111,7 @@ void *worker(void *arg){
 
             data_flow_trace(shadow_data[i], basic_block_id, worker_id + 1);
             if(i > 1){
+                //TODO fix data race
                 data_flow_trace(shadow_data[i - 2], basic_block_id, worker_id + 1);
                 data_flow_trace(shadow_worker_state, basic_block_id, worker_id + 1);
 

@@ -21,7 +21,7 @@ void *worker(void *arg1);
 int data_size, num_workers;
 
 int data[MAX_DATA];
-int shadow_data[MAX_DATA];
+int *shadow_data;
 
 
 int main(int argc, char *argv[]){
@@ -42,7 +42,8 @@ int main(int argc, char *argv[]){
     init_barrier(num_workers);
 
     init_int_data(data, MAX_DATA);
-    init_int_data(shadow_data, MAX_DATA);
+
+    shadow_data = get_trace_array(MAX_DATA);
 
     //creating the workers and putting them to work
     for(i = 0; i < num_workers; i++){

@@ -41,7 +41,7 @@ int main(int argc, char *argv[]){
     init_barrier(num_workers);
 
     data = create_and_init_int_array(data_size);
-    shadow_data = create_and_init_int_array(data_size);
+    shadow_data = get_trace_array(data_size);
 
     trace_init();
     enter_block(1, 0);
