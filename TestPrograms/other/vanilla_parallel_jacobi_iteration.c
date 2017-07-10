@@ -15,9 +15,6 @@ http://www.cs.arizona.edu/people/greg/mpdbook/programs/jacobi.c
 #include <sys/times.h>
 #include <limits.h>
 #include "../tools/tools.h"
-#define SHARED 1
-#define MAXGRID 258   /* maximum grid size, including boundaries */
-#define MAXWORKERS 4  /* maximum number of worker threads */
 
 void *worker(void *);
 void InitializeGrids();
@@ -27,8 +24,8 @@ clock_t start, finish;
 
 
 int gridSize, numWorkers, numIters, stripSize;
-double maxDiff[MAXWORKERS];
-double grid1[MAXGRID][MAXGRID], grid2[MAXGRID][MAXGRID];
+double *maxDiff;
+double **grid1, **grid2;
 
 
 /* main() -- read command line, initialize grids, and create threads
@@ -36,7 +33,7 @@ double grid1[MAXGRID][MAXGRID], grid2[MAXGRID][MAXGRID];
 
 int main(int argc, char *argv[]) {
     /* thread ids and attributes */
-    pthread_t workerid[MAXWORKERS];
+    pthread_t *workerid;
     pthread_attr_t attr;
     int i, j;
     double maxdiff = 0.0;
@@ -52,10 +49,17 @@ int main(int argc, char *argv[]) {
     numWorkers = atoi(argv[2]);
     numIters = atoi(argv[3]);
 
+    workerid = (pthread_t*) malloc( numWorkers * sizeof(pthread_t));
+
+    maxDiff = (double*) malloc(numWorkers * sizeof(double));
+    grid1 = alloc_double_matrix(gridSize + 2, gridSize + 2);
+    grid2 = alloc_double_matrix(gridSize + 2, gridSize + 2);
+
     stripSize = gridSize/numWorkers;
     InitializeGrids();
 
     start = times(&buffer);
+
 
     /* create the workers, then wait for them to finish */
     for (i = 0; i < numWorkers; i++)
@@ -79,6 +83,9 @@ int main(int argc, char *argv[]) {
         }
         fprintf(results, "\n");
     }
+    free(grid1);
+    free(grid2);
+    free(maxDiff);
 }
 
 
