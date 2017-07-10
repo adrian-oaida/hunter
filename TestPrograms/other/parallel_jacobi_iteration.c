@@ -1,43 +1,38 @@
 /* Jacobi iteration using pthreads
 
-   usage on Solaris:
-     gcc jacobi.c -lpthread -lposix4
-     a.out gridSize numWorkers numIters
+Adapted from
+Jacobi iteration using pthreads by Greg Andrews
+http://www.cs.arizona.edu/people/greg/mpdbook/programs/jacobi.c
+
 
 */
 
 #define _REENTRANT
 #include <pthread.h>
+#include <stdlib.h>
 #include <semaphore.h>
 #include <stdio.h>
 #include <sys/times.h>
 #include <limits.h>
-#define SHARED 1
-#define MAXGRID 258   /* maximum grid size, including boundaries */
-#define MAXWORKERS 4  /* maximum number of worker threads */
+#include "../tools/tools.h"
 
-void *Worker(void *);
+void *worker(void *);
 void InitializeGrids();
-void Barrier();
 
-struct tms buffer;        /* used for timing */
-clock_t start, finish;
-
-pthread_mutex_t barrier;  /* mutex semaphore for the barrier */
-pthread_cond_t go;        /* condition variable for leaving */
-int numArrived = 0;       /* count of the number who have arrived */
 
 int gridSize, numWorkers, numIters, stripSize;
-double maxDiff[MAXWORKERS];
-double grid1[MAXGRID][MAXGRID], grid2[MAXGRID][MAXGRID];
+double *maxDiff;
+double **grid1, **grid2;
 
+int *shadow_maxDiff;
+int **shadow_grid1, **shadow_grid2;
 
 /* main() -- read command line, initialize grids, and create threads
              when the threads are done, print the results */
 
 int main(int argc, char *argv[]) {
     /* thread ids and attributes */
-    pthread_t workerid[MAXWORKERS];
+    pthread_t *workerid;
     pthread_attr_t attr;
     int i, j;
     double maxdiff = 0.0;
@@ -47,33 +42,54 @@ int main(int argc, char *argv[]) {
     pthread_attr_init(&attr);
     pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
 
-    /* initialize mutex and condition variable */
-    pthread_mutex_init(&barrier, NULL);
-    pthread_cond_init(&go, NULL);
 
     /* read command line and initialize grids */
     gridSize = atoi(argv[1]);
     numWorkers = atoi(argv[2]);
     numIters = atoi(argv[3]);
+
+    workerid = (pthread_t*) malloc( numWorkers * sizeof(pthread_t));
+
+    maxDiff = (double*) malloc(numWorkers * sizeof(double));
+    grid1 = alloc_double_matrix(gridSize + 2, gridSize + 2);
+    grid2 = alloc_double_matrix(gridSize + 2, gridSize + 2);
+
+    shadow_maxDiff = get_trace_array(numWorkers);
+
+    shadow_grid1 = get_trace_matrix(gridSize + 2, gridSize + 2);
+    shadow_grid2 = get_trace_matrix(gridSize + 2, gridSize + 2);
+
     stripSize = gridSize/numWorkers;
     InitializeGrids();
 
-    start = times(&buffer);
+    trace_init();
+
+
     /* create the workers, then wait for them to finish */
     for (i = 0; i < numWorkers; i++)
-        pthread_create(&workerid[i], &attr, Worker, (void *) i);
+        pthread_create(&workerid[i], &attr, worker, (void *) i);
     for (i = 0; i < numWorkers; i++)
         pthread_join(workerid[i], NULL);
 
-    finish = times(&buffer);
+    enter_block(14, numWorkers + 1);
+    int basic_block_id = 0;
+    int shadow_maxdiff = 0;
     /* print the results */
-    for (i = 0; i < numWorkers; i++)
-        if (maxdiff < maxDiff[i])
+    for (i = 0; i < numWorkers; i++){
+        basic_block_id = enter_block(15, numWorkers + 1);
+        if (maxdiff < maxDiff[i]){
+            data_flow_trace(shadow_maxDiff[i], basic_block_id, numWorkers + 1);
+            shadow_maxdiff = basic_block_id;
             maxdiff = maxDiff[i];
-    printf("number of iterations:  %d\nmaximum difference:  %e\n",
-           numIters, maxdiff);
-    printf("start:  %d   finish:  %d\n", start, finish);
-    printf("elapsed time:  %d\n", finish-start);
+        }
+        exit_block(numWorkers + 1);
+
+    }
+
+    exit_block(numWorkers + 1);
+    trace_end();
+
+
     results = fopen("results", "w");
     for (i = 1; i <= gridSize; i++) {
         for (j = 1; j <= gridSize; j++) {
@@ -81,6 +97,9 @@ int main(int argc, char *argv[]) {
         }
         fprintf(results, "\n");
     }
+    free(grid1);
+    free(grid2);
+    free(maxDiff);
 }
 
 
@@ -88,48 +107,119 @@ int main(int argc, char *argv[]) {
    The main worker loop does two computations to avoid copying from
    one grid to the other.  */
 
-void *Worker(void *arg) {
-    int myid = (int) arg;
+void *worker(void *arg) {
+    int worker_id = (int) arg;
     double maxdiff, temp;
     int i, j, iters;
     int first, last;
 
-    printf("worker %d (pthread id %d) has started\n", myid, pthread_self());
+    int basic_block_id = 0;
 
     /* determine first and last rows of my strip of the grids */
-    first = myid*stripSize + 1;
+    first = worker_id*stripSize + 1;
     last = first + stripSize - 1;
+    basic_block_id = enter_block(1, worker_id);
 
     for (iters = 1; iters <= numIters; iters++) {
         /* update my points */
+        basic_block_id = enter_block(2, worker_id);
         for (i = first; i <= last; i++) {
+            basic_block_id = enter_block(3, worker_id);
             for (j = 1; j <= gridSize; j++) {
+                basic_block_id = enter_block(4, worker_id);
+
                 grid2[i][j] = (grid1[i-1][j] + grid1[i+1][j] +
                                grid1[i][j-1] + grid1[i][j+1]) * 0.25;
+
+                data_flow_trace(shadow_grid1[i - 1][j], basic_block_id, worker_id);
+                data_flow_trace(shadow_grid1[i + 1][j], basic_block_id, worker_id);
+                data_flow_trace(shadow_grid1[i][j - 1], basic_block_id, worker_id);
+                data_flow_trace(shadow_grid1[i][j + 1], basic_block_id, worker_id);
+
+                shadow_grid2[i][j] = basic_block_id;
+
+                exit_block(worker_id);
             }
         }
-        Barrier();
+        exit_block(worker_id);
+        wait_for_barrier();
+        basic_block_id = enter_block(5, worker_id);
         /* update my points again */
         for (i = first; i <= last; i++) {
+            basic_block_id = enter_block(6, worker_id);
             for (j = 1; j <= gridSize; j++) {
+                basic_block_id = enter_block(7, worker_id);
+
                 grid1[i][j] = (grid2[i-1][j] + grid2[i+1][j] +
                                grid2[i][j-1] + grid2[i][j+1]) * 0.25;
+
+                data_flow_trace(shadow_grid2[i - 1][j], basic_block_id, worker_id);
+                data_flow_trace(shadow_grid2[i + 1][j], basic_block_id, worker_id);
+                data_flow_trace(shadow_grid2[i][j - 1], basic_block_id, worker_id);
+                data_flow_trace(shadow_grid2[i][j + 1], basic_block_id, worker_id);
+
+
+                shadow_grid1[i][j] = basic_block_id;
+
+                exit_block(worker_id);
             }
         }
-        Barrier();
+
+        exit_block(worker_id);
+        wait_for_barrier();
     }
     /* compute the maximum difference in my strip and set global variable */
+
+    int shadow_temp = 0;
+    int shadow_maxdiff = 0;
+    basic_block_id = enter_block(8, worker_id);
     maxdiff = 0.0;
     for (i = first; i <= last; i++) {
+        basic_block_id = enter_block(9, worker_id);
         for (j = 1; j <= gridSize; j++) {
+            basic_block_id = enter_block(10, worker_id);
+
+            data_flow_trace(shadow_grid1[i][j], basic_block_id, worker_id);
+            data_flow_trace(shadow_grid2[i][j], basic_block_id, worker_id);
+            shadow_temp = basic_block_id;
+
             temp = grid1[i][j]-grid2[i][j];
-            if (temp < 0)
+
+            exit_block(worker_id);
+
+            basic_block_id = enter_block(11, worker_id);
+            if (temp < 0){
+                data_flow_trace(shadow_temp, basic_block_id, worker_id);
+                shadow_temp = basic_block_id;
+
                 temp = -temp;
-            if (maxdiff < temp)
+            }
+            exit_block(worker_id);
+            basic_block_id = enter_block(12, worker_id);
+            if (maxdiff < temp){
+                data_flow_trace(shadow_temp, basic_block_id, worker_id);
+                shadow_maxdiff = basic_block_id;
+
                 maxdiff = temp;
+
+            }
+            exit_block(worker_id);
+
+            exit_block(worker_id);
         }
+        exit_block(worker_id);
     }
-    maxDiff[myid] = maxdiff;
+    exit_block(worker_id);
+
+    basic_block_id = enter_block(13, worker_id);
+
+    data_flow_trace(shadow_maxdiff, basic_block_id, worker_id);
+    shadow_maxDiff[worker_id] = basic_block_id;
+
+    maxDiff[worker_id] = maxdiff;
+
+    exit_block(worker_id);
+    exit_block(worker_id);
 }
 
 void InitializeGrids() {
@@ -155,13 +245,3 @@ void InitializeGrids() {
     }
 }
 
-void Barrier() {
-    pthread_mutex_lock(&barrier);
-    numArrived++;
-    if (numArrived == numWorkers) {
-        numArrived = 0;
-        pthread_cond_broadcast(&go);
-    } else
-        pthread_cond_wait(&go, &barrier);
-    pthread_mutex_unlock(&barrier);
-}
