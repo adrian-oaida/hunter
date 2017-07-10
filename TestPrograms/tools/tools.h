@@ -8,5 +8,9 @@
 #include "file_operations.h"
 
 void init_int_array(int *array, int size);
+
+int *get_trace_array(int size);
+int **get_trace_matrix(int n, int m);
+
 int *create_and_init_int_array(int size);
 #endif

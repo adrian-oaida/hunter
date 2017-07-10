@@ -22,3 +22,16 @@ void init_int_matrix(int **matrix, int n, int m){
         bzero(matrix[i], m * sizeof(int));
     }
 }
+void init_double_matrix(double **matrix, int n, int m){
+    for(int i=0; i < n; i++){
+        bzero(matrix[i], m * sizeof(double));
+    }
+}
+int **alloc_and_init_int_matrix(int n, int m){
+    int **matrix = (int**) malloc(n * sizeof(int*));
+    for(int i=0; i < n; i++){
+        matrix[i] = (int*) malloc(m * sizeof(int));
+        bzero(matrix[i], m * sizeof(int));
+    }
+    return matrix;
+}
