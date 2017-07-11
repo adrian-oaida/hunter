@@ -93,7 +93,10 @@ public class Node {
     }
 
     public void removeEdge(Edge edge) {
-        if(edge.getSource() == this){
+        if(edge.getTarget() == this && edge.getSource() == this){
+            outgoingEdges.remove(edge);
+            incomingEdges.remove(edge);
+        }else if(edge.getSource() == this){
 
             if(getOutwardDegreeToward(edge.getTarget()) == 1){
                 edge.getTarget().neighbouringNodes.remove(this);

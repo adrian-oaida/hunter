@@ -24,6 +24,9 @@ public class Graph implements Iterable<Node>{
         removeNode(nodeMap.get(nodeId));
     }
 
+    public int getNodeCount(){
+        return nodeMap.values().size();
+    }
     public int getMaxNodeId(){
         return maxNodeId;
     }
