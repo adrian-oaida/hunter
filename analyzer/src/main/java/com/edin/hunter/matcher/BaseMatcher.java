@@ -11,16 +11,16 @@ import java.util.*;
 /**
  * Created by dude on 6/25/17.
  */
-public abstract class BasicMatcher {
+public abstract class BaseMatcher {
     protected Graph graph;
-    protected Node start;
-    protected Node finish;
+    protected List<Node> startNodes;
+    protected List<Node> finishNodes;
 
     /*
     * @param graph a dataflow graph
     *
     * */
-    public BasicMatcher(Graph graph){
+    public BaseMatcher(Graph graph){
         this.graph = graph;
         markUpGraph();
     }
@@ -69,28 +69,74 @@ public abstract class BasicMatcher {
 
     }
     protected void markUpGraph(){
-        for(Node n : graph){
+        startNodes = new ArrayList<>();
+        finishNodes = new ArrayList<>();
+        for(Node n : graph) {
             n.setAttribute("color", "blue");
-            if(n.getInDegree() == 0){
-                start =  n;
-                System.out.println("start " + start);
+            if (n.getInDegree() == 0) {
+                startNodes.add(n);
+                System.out.println("start " + n);
                 n.setAttribute("shape", "box");
                 n.setAttribute("color", "red");
             }
-            if(n.getOutDegree() == 0){
-                finish = n;
-                System.out.println("finish " + finish);
+            if (n.getOutDegree() == 0) {
+                finishNodes.add(n);
+                System.out.println("finish " + n);
                 n.setAttribute("shape", "box");
                 n.setAttribute("color", "black");
             }
-            if(! n.getEdgesTowards(n).isEmpty()){
-                if(n.getInDegree() - 1 == 0){
+            if (!n.getEdgesTowards(n).isEmpty()) {
+                if (n.getInDegree() - 1 == 0) {
+                    startNodes.add(n);
                     n.setAttribute("color", "red");
                 }
-                if(n.getOutDegree() - 1 == 0){
+                if(n.getOutDegree() - 1 == 0) {
+                    finishNodes.add(n);
                     n.setAttribute("color", "black");
                 }
             }
         }
+    }
+        /*
+    * This method performs a depth first search on incoming edges until it research the node y and returns a reversed path to that node
+    * */
+
+    protected boolean incomingDFS(Node node, boolean[] visited, Node y, List<Edge> path){
+
+        visited[node.getId()] = true;
+
+
+        if(node == y){
+            return true;
+        }
+        for(Edge e : node.getIncomingEdges()){
+            if(!visited[e.getSource().getId()]){
+                if(incomingDFS(e.getSource(), visited, y, path)){
+                    path.add(e);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    /*
+    * This method performs a depth first search on outgoing edges until it research the node y and returns a reversed path to that node
+    * */
+    protected boolean outgoingDFS(Node node, boolean[] visited, Node y, List<Edge> path){
+
+        visited[node.getId()] = true;
+
+        if(node == y){
+            return true;
+        }
+        for(Edge e : node.getOutgoingEdges()){
+            if(!visited[e.getTarget().getId()]){
+                if(outgoingDFS(e.getTarget(), visited, y, path)){
+                    path.add(e);
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

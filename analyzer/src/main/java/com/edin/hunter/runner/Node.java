@@ -61,6 +61,9 @@ public class Node {
         return Stream.concat(outgoingEdges.stream(), incomingEdges.stream()).collect(Collectors.toList());
     }
 
+    public List<Edge> getIncomingEdges(){
+        return incomingEdges;
+    }
     public List<Edge> getOutgoingEdges(){
         return outgoingEdges;
     }

@@ -37,7 +37,7 @@ public class LatticeGenerator {
 
     }
     public void displayLattice(){
-        BasicMatcher matcher = new StageMatcher(graph);
+        BaseMatcher matcher = new StageMatcher(graph);
         matcher.detect();
 
         GraphViewer viewer = new GraphViewer(graph);

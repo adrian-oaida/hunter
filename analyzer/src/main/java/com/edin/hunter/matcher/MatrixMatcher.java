@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Created by dude on 7/12/17.
  */
-public class MatrixMatcher extends BasicMatcher{
+public class MatrixMatcher extends BaseMatcher {
 
     public MatrixMatcher(Graph graph){
         super(graph);
@@ -18,8 +18,8 @@ public class MatrixMatcher extends BasicMatcher{
     @Override
     public Graph detect() {
 
-//        removeSelfEdges();
-//        removeDuplicatedEdges();
+        removeSelfEdges();
+        removeDuplicatedEdges();
         markUpGraph();
 
         detectLatice();
@@ -38,8 +38,8 @@ public class MatrixMatcher extends BasicMatcher{
 
         boolean[] visited = new boolean[graph.getMaxNodeId() + 1];
 
-        matrix[0][0] = start;
-        if(populateMatrix(matrix, start, 0, 0)){
+        matrix[0][0] = startNodes.get(0);
+        if(populateMatrix(matrix, startNodes.get(0), 0, 0)){
             System.out.println("Match");
             showMatrix(matrix);
         }else{
@@ -104,7 +104,7 @@ public class MatrixMatcher extends BasicMatcher{
 
     private boolean populateMatrix(Node[][] matrix, Node currentNode, int i, int j){
         showMatrix(matrix);
-        if(currentNode == finish){
+        if(currentNode == finishNodes.get(0)){
             return testMatrix(matrix);
         }
         List<Edge> outgoingEdges = currentNode.getOutgoingEdges();

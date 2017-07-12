@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Created by dude on 7/12/17.
  */
-public class StageMatcher extends BasicMatcher{
+public class StageMatcher extends BaseMatcher {
 
     public StageMatcher(Graph graph) {
         super(graph);
@@ -31,12 +31,13 @@ public class StageMatcher extends BasicMatcher{
                // System.out.println("other types " + node.getId());
             }
         }
+        //TODO try to do for multiple start nodes
         for(Node n : cornerNodes){
-            System.out.printf("path from %d to %d \n", start.getId(), n.getId());
+            System.out.printf("path from %d to %d \n", startNodes.get(0).getId(), n.getId());
             //because this graph is already a tree, we do a dfs to get the paths from start to the corners
             //then we can say that we have identified a stage in the pipeline
 
-            List<Node> stage = shortestPath(start, n);
+            List<Node> stage = shortestPath(startNodes.get(0), n);
             if(matchPipeline(stage)){
                 System.out.println("we got a lattice");
             }
@@ -92,29 +93,12 @@ public class StageMatcher extends BasicMatcher{
         }
         return true;
     }
-    private boolean dfsUtil(Node node, boolean[] visited, Node y, List<Edge> path){
 
-        visited[node.getId()] = true;
-
-
-        if(node == y){
-            return true;
-        }
-        for(Edge e : node.getOutgoingEdges()){
-            if(!visited[e.getTarget().getId()]){
-                if(dfsUtil(e.getTarget(), visited, y, path)){
-                    path.add(e);
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
     private List<Node> shortestPath(Node x, Node y){
         List<Edge> path = new ArrayList<>();
         boolean [] visited = new boolean[graph.getMaxNodeId() + 1];
 
-        dfsUtil(x, visited, y, path);
+        outgoingDFS(x, visited, y, path);
         Collections.reverse(path);
         List<Node> pathNodes = new ArrayList<>();
         pathNodes.add(x);
