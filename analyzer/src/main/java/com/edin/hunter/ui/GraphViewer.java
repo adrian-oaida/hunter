@@ -22,7 +22,6 @@ public class GraphViewer {
     private Graph graph;
     private JPanel graphPanel;
     private JFrame graphFrame;
-    private Image graphImage;
     private Dimension graphImageSize;
     private GraphicsDevice currentDisplayDevice;
     private ScheduledExecutorService scheduler;
