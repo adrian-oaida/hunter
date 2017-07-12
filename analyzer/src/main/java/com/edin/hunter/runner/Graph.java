@@ -66,6 +66,13 @@ public class Graph implements Iterable<Node>{
                 sb.append(edge.getSource());
                 sb.append(" -> ");
                 sb.append(edge.getTarget());
+                sb.append(" [");
+                for(Map.Entry<String, String> attribute : edge.getAttributeMap().entrySet()){
+                    sb.append(attribute.getKey()); sb.append("="); sb.append(attribute.getValue());
+                    sb.append(",");
+                }
+                sb.append("]");
+
                 sb.append(";\n");
             }
         }

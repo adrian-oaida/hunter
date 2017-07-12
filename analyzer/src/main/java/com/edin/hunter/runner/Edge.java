@@ -27,6 +27,11 @@ public class Edge {
     public Node getTarget(){
         return target;
     }
+
+    public Map<String, String> getAttributeMap(){
+        return attributes;
+    }
+
     public String getAttribute(String attributeName){
         return attributes.get(attributeName);
     }
@@ -55,6 +60,10 @@ public class Edge {
             hashCode = hashCode * 31 + this.target.hashCode();
         }
         return hashCode;
+    }
+    @Override
+    public String toString(){
+        return source.getId() + " -> " + target.getId();
     }
 }
 class EdgeIdGenerator{

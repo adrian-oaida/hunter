@@ -4,9 +4,6 @@ import com.edin.hunter.runner.Graph;
 import com.edin.hunter.runner.Node;
 import com.edin.hunter.ui.GraphViewer;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created by dude on 7/9/17.
  */
@@ -40,8 +37,10 @@ public class LatticeGenerator {
 
     }
     public void displayLattice(){
-        GraphViewer viewer = new GraphViewer(graph);
+        BasicMatcher matcher = new StageMatcher(graph);
+        matcher.detect();
 
+        GraphViewer viewer = new GraphViewer(graph);
         viewer.displayGraph();
     }
 }
