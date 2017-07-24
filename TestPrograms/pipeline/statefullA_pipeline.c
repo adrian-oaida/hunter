@@ -44,7 +44,7 @@ int main(int argc, char *argv[]){
     shadow_data = get_trace_array(data_size);
 
     trace_init();
-    enter_block(1, 0);
+    enter_block(1, num_workers + 1, "for(i = 0; i < num_workers; i++)");
     //creating the workers and putting them to work
     for(i = 0; i < num_workers; i++){
 
@@ -56,7 +56,7 @@ int main(int argc, char *argv[]){
         pthread_join(worker_ids[i], NULL);
 
     }
-    exit_block(0);
+    exit_block(num_workers + 1);
     trace_end();
     //writing the computation result to a file
 
@@ -76,11 +76,7 @@ void *worker(void *arg){
     int worker_state = worker_id;
     int shadow_worker_state = 0;
     int temp;
-    int temp2;
-    int temp3;
     int shadow_temp = 0;
-    int shadow_temp2 = 0;
-    int shadow_temp3 = 0;
 
     for(int i = 0; i < worker_id;i++){
         //wait for other workers to catch to star the stage
@@ -88,46 +84,41 @@ void *worker(void *arg){
     }
     int basic_block_id = 0;
 
-    enter_block(2, worker_id + 1);
+    basic_block_id = enter_block(2, worker_id, "for(int i = 0; i < data_size; i++)");
     for(int i = 0; i < data_size; i++){
-        enter_block(3, worker_id + 1);
-        basic_block_id = enter_block(4, worker_id + 1);
-
-        data_flow_trace(shadow_worker_state, basic_block_id, worker_id + 1);
-        shadow_worker_state = basic_block_id;
+        basic_block_id = enter_block(3, worker_id, "worker_state = worker_state + 1");
 
         worker_state = worker_state + 1;
 
-        exit_block(worker_id + 1);
-
-
-        basic_block_id = enter_block(5, worker_id + 1);
-        temp = data[i];
-
-        exit_block(worker_id + 1);
-
-        basic_block_id = enter_block(6, worker_id + 1);
-
-        exit_block(worker_id + 1);
-
-
-        basic_block_id = enter_block(7, worker_id + 1);
-
-        data_flow_trace(shadow_worker_state, basic_block_id, worker_id + 1);
+        data_flow_trace(shadow_worker_state, basic_block_id, worker_id);
         shadow_worker_state = basic_block_id;
 
-        data_flow_trace(shadow_data[i], basic_block_id, worker_id + 1);
+        exit_block(worker_id);
+
+        basic_block_id = enter_block(4, worker_id, "temp = data[i]");
+
+        temp = data[i];
+
+        data_flow_trace(shadow_data[i], basic_block_id, worker_id);
+        shadow_temp = basic_block_id;
+
+        exit_block(worker_id);
+
+        basic_block_id = enter_block(5, worker_id, "data[i] = 1 + worker_state + temp");
+
+        data[i] = 1 + worker_state + temp;
+
+        data_flow_trace(shadow_worker_state, basic_block_id, worker_id);
+        data_flow_trace(shadow_temp, basic_block_id, worker_id);
+
         shadow_data[i] = basic_block_id;
 
-        data[i] += 1 + worker_state;
-
-        exit_block(worker_id + 1);
-        exit_block(worker_id + 1);
+        exit_block(worker_id);
 
         //wait for other workers to catch up
         wait_for_barrier();
     }
-    exit_block(worker_id + 1);
+    exit_block(worker_id);
 
     for(int i = 0; i < (num_workers - worker_id -1); i++){
         //wait for other workers to catch up to end the stage

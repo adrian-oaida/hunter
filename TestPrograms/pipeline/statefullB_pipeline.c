@@ -44,7 +44,7 @@ int main(int argc, char *argv[]){
     shadow_data = get_trace_array(data_size);
 
     trace_init();
-    enter_block(1, 0);
+    enter_block(1, 0, "for(i = 0; i < num_workers; i++)");
     //creating the workers and putting them to work
     for(i = 0; i < num_workers; i++){
 
@@ -86,26 +86,26 @@ void *worker(void *arg){
     }
     int basic_block_id = 0;
 
-    enter_block(2, worker_id + 1);
+    enter_block(2, worker_id + 1, "for(int i = 0; i < data_size; i++)");
     for(int i = 0; i < data_size; i++){
-        basic_block_id = enter_block(3, worker_id + 1);
+        basic_block_id = enter_block(3, worker_id + 1, "data[i] += 1 + previous_worker_state");
 
         data[i] += 1 + previous_worker_state;
 
         data_flow_trace(shadow_previous_worker_state, basic_block_id, worker_id + 1);
         data_flow_trace(shadow_data[i], basic_block_id, worker_id + 1);
         shadow_data[i] = basic_block_id;
-//        exit_block(worker_id + 1);
-//
-//        basic_block_id = enter_block(4, worker_id + 1);
+        exit_block(worker_id + 1);
+
+        basic_block_id = enter_block(4, worker_id + 1, "previous_worker_state = worker_state");
 
         previous_worker_state = worker_state;
 
         data_flow_trace(shadow_worker_state, basic_block_id, worker_id + 1);
         shadow_previous_worker_state = basic_block_id;
-//        exit_block(worker_id + 1);
-//
-//        basic_block_id = enter_block(5, worker_id + 1);
+        exit_block(worker_id + 1);
+
+        basic_block_id = enter_block(5, worker_id + 1, "worker_state = worker_state + 1;");
 
         worker_state = worker_state + 1;
 

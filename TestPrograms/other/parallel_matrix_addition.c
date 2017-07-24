@@ -16,18 +16,15 @@ int main(int argc, char *argv[]){
 
     fscanf(f, "%d %d\n", &n, &m);
 
-    m_a = alloc_matrix(n, m);
-    m_b = alloc_matrix(n, m);
-    m_r = alloc_matrix(n, m);
+    m_a = alloc_int_matrix(n, m);
+    m_b = alloc_int_matrix(n, m);
+    m_r = alloc_int_matrix(n, m);
 
-    shadow_m_a = alloc_matrix(n, m);
-    init_int_matrix(shadow_m_a, n, m);
+    shadow_m_a = alloc_and_init_int_matrix(n, m);
 
-    shadow_m_b = alloc_matrix(n, m);
-    init_int_matrix(shadow_m_b, n, m);
+    shadow_m_b = alloc_and_init_int_matrix(n, m);
 
-    shadow_m_r = alloc_matrix(n, m);
-    init_int_matrix(shadow_m_r, n, m);
+    shadow_m_r = alloc_and_init_int_matrix(n, m);;
 
     pthread_t *worker_ids = (pthread_t *) malloc(n * sizeof(pthread_t));
     pthread_attr_t attr;
@@ -39,15 +36,15 @@ int main(int argc, char *argv[]){
 
     int basic_block_id;
 
-    enter_block(1, 0);
 
-    enter_block(2, 0);
+
+    basic_block_id = enter_block(1, 0, "for(int i = 0; i < n; i++)");
     for(int i = 0; i < n; i++){
-        enter_block(3, 0);
+        enter_block(2, 0, "for(int j = 0; j < m; j++)");
         for(int j = 0; j < m; j++){
-            basic_block_id = enter_block(4, 0);
+            basic_block_id = enter_block(3, 0, "fscanf(f, \"%d\", &m_a[i][j])");
 
-            data_flow_trace(shadow_m_a[i][j], basic_block_id);
+            data_flow_trace(shadow_m_a[i][j], basic_block_id, 0);
 
             fscanf(f, "%d", &m_a[i][j]);
 
@@ -59,15 +56,15 @@ int main(int argc, char *argv[]){
     }
     exit_block(0);
 
-    enter_block(2, 0);
+    enter_block(4, 0, "for(int i = 0; i < n; i++)");
     for(int i = 0; i < n; i++){
-        enter_block(3, 0);
+        enter_block(5, 0, "for(int j = 0; j < m; j++)");
         for(int j = 0; j < m; j++){
-            basic_block_id = enter_block(4, 0);
-
-            data_flow_trace(shadow_m_b[i][j], basic_block_id);
+            basic_block_id = enter_block(6, 0, "fscanf(f, \"%d\", &m_b[i][j])");
 
             fscanf(f, "%d", &m_b[i][j]);
+
+            data_flow_trace(shadow_m_b[i][j], basic_block_id, 0);
 
             shadow_m_b[i][j] = basic_block_id;
             exit_block(0);
@@ -93,24 +90,20 @@ int main(int argc, char *argv[]){
 
     for(int i=0; i < n; i++){
         for(int j=0; j< m; j++){
-            enter_block(8, 1);
 
-            basic_block_id = enter_block(9, 1);
+            basic_block_id = enter_block(8, 0, "fprintf(f, \"%d \", m_r[i][j])");
 
-            data_flow_trace(shadow_m_r[i][j], basic_block_id);
+            data_flow_trace(shadow_m_r[i][j], basic_block_id, 0);
             fprintf(f, "%d ", m_r[i][j]);
 
             shadow_m_r[i][j] = basic_block_id;
 
-            exit_block(1);
             exit_block(1);
         }
         fprintf(f, "\r\n");
     }
     fclose(f);
 
-
-    exit_block(0);
 
     free(m_r);
 
@@ -124,18 +117,15 @@ void *worker(void *arg){
 
 
     for(int j = 0; j < m; j++){
-        enter_block(6, worker_id + 1);
-        basic_block_id = enter_block(7, worker_id + 1);
+        basic_block_id = enter_block(7, worker_id + 1, "m_r[worker_id][j] = m_a[worker_id][j] + m_b[worker_id][j]");
 
-        data_flow_trace(shadow_m_a[worker_id][j], basic_block_id);
-        data_flow_trace(shadow_m_b[worker_id][j], basic_block_id);
+        data_flow_trace(shadow_m_a[worker_id][j], basic_block_id, worker_id + 1);
+        data_flow_trace(shadow_m_b[worker_id][j], basic_block_id, worker_id + 1);
 
         m_r[worker_id][j] = m_a[worker_id][j] + m_b[worker_id][j];
 
         shadow_m_r[worker_id][j] = basic_block_id;
 
-
-        exit_block(worker_id + 1);
         exit_block(worker_id + 1);
     }
 

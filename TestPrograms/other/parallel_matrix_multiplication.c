@@ -28,20 +28,16 @@ int main(int argc, char *argv[]){
 
     fscanf(f, "%d %d %d", &n, &m, &p);
 
-    m_a = alloc_matrix(n, m);
-    m_b = alloc_matrix(m, p);
+    m_a = alloc_int_matrix(n, m);
+    m_b = alloc_int_matrix(m, p);
 
-    m_r = alloc_matrix(n, p);
-    init_int_matrix(m_r, n, p);
+    m_r = alloc_and_init_int_matrix(n, p);
 
-    shadow_m_a = alloc_matrix(n, m);
-    init_int_matrix(shadow_m_a, n, m);
+    shadow_m_a = alloc_and_init_int_matrix(n, m);
 
-    shadow_m_b = alloc_matrix(m, p);
-    init_int_matrix(shadow_m_b, m, p);
+    shadow_m_b = alloc_and_init_int_matrix(m, p);
 
-    shadow_m_r = alloc_matrix(n, p);
-    init_int_matrix(shadow_m_r, n, p);
+    shadow_m_r = alloc_and_init_int_matrix(n, p);
 
     worker_ids = (pthread_t *) malloc(n * sizeof(pthread_t));
 
@@ -61,7 +57,7 @@ int main(int argc, char *argv[]){
     }
     fclose(f);
 
-    enter_block(1, 0);
+    enter_block(1, n + 1, "for(int i = 0; i < n; i++)");
 
     for(int i = 0; i < n; i++){
         pthread_create(&worker_ids[i], &attr, worker, (void *) i);
@@ -70,7 +66,7 @@ int main(int argc, char *argv[]){
         pthread_join(worker_ids[i], NULL);
     }
 
-    exit_block(0);
+    exit_block(n + 1);
 
     trace_end();
 
@@ -96,20 +92,20 @@ void *worker(void *arg){
     int worker_id = (int)arg;
     int basic_block_id;
 
-    enter_block(2, worker_id);
+    enter_block(2, worker_id, "for(int k = 0; k < p; k++)");
     for(int k = 0; k < p; k++){
-        enter_block(3, worker_id);
+        enter_block(3, worker_id, "for(int j = 0; j < m; j++)");
 
         for(int j = 0; j < m; j++){
-            basic_block_id = enter_block(4, worker_id);
+            basic_block_id = enter_block(4, worker_id, "m_r[worker_id][k] = m_r[worker_id][k] + ( m_a[worker_id][j] * m_b[j][k] )");
 
             m_r[worker_id][k] = m_r[worker_id][k] + ( m_a[worker_id][j] * m_b[j][k] );
 
-            data_flow_trace(shadow_m_r[worker_id][k], basic_block_id);
+            data_flow_trace(shadow_m_r[worker_id][k], basic_block_id, worker_id);
 
-            data_flow_trace(shadow_m_a[worker_id][j], basic_block_id);
+            data_flow_trace(shadow_m_a[worker_id][j], basic_block_id, worker_id);
 
-            data_flow_trace(shadow_m_b[j][k], basic_block_id);
+            data_flow_trace(shadow_m_b[j][k], basic_block_id, worker_id);
 
             shadow_m_r[worker_id][k] = basic_block_id;
             exit_block(worker_id);
