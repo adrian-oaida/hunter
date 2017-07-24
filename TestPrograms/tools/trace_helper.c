@@ -52,7 +52,7 @@ int get_max_dynamic_block_id(){
     return ticket;
 }
 
-int enter_block(int static_block_nr, int worker_id){
+int enter_block(int static_block_nr, int worker_id, char *instruction){
 
     if(static_block_nr > max_static_blocks_nr){
         max_static_blocks_nr = static_block_nr;
@@ -65,7 +65,7 @@ int enter_block(int static_block_nr, int worker_id){
 
     pthread_mutex_lock(&print_lock);
 //    printf("BC %d %d %d %d\n", old_trace_block.static_id, old_trace_block.dynamic_id, new_trace_block.static_id, new_trace_block.dynamic_id);
-    printf("BC %d %d %d %d\n", old_trace_block.dynamic_id, old_trace_block.static_id, new_trace_block.dynamic_id, new_trace_block.static_id);
+    printf("BC %d|%d|%d|%d|%s\n", old_trace_block.dynamic_id, old_trace_block.static_id, new_trace_block.dynamic_id, new_trace_block.static_id, instruction);
 
     pthread_mutex_unlock(&print_lock);
 
@@ -74,7 +74,8 @@ int enter_block(int static_block_nr, int worker_id){
 
 void data_flow_trace(int from_block_id, int to_block_id, int worker_id){
     pthread_mutex_lock(&print_lock);
-    printf("DF %d %d %d %d\n", from_block_id, to_block_id, stack_top(trace_stacks[worker_id]).static_id, stack_top(trace_stacks[worker_id]).dynamic_id);
+    //to_block_id is the dynamic block id
+    printf("DF %d|%d|%d\n", from_block_id, to_block_id, stack_top(trace_stacks[worker_id]).static_id);
     data_edges++;
     pthread_mutex_unlock(&print_lock);
 }
