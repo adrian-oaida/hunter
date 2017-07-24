@@ -1,8 +1,5 @@
-package com.edin.hunter.runner;
+package com.edin.hunter.graph;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,7 +12,7 @@ import java.util.stream.Stream;
  */
 public class Node {
     private int id;
-    protected Graph graph;
+    protected DirectedGraph graph;
 
     private List<Edge> outgoingEdges = new ArrayList<>();
     private List<Edge> incomingEdges = new ArrayList<>();
@@ -23,7 +20,7 @@ public class Node {
     private List<Node> neighbouringNodes = new ArrayList<>();
     private Map<String, String> attributes = new HashMap<>();
 
-    protected Node(int id, Graph graph){
+    protected Node(int id, DirectedGraph graph){
         this.id = id;
         this.graph = graph;
     }

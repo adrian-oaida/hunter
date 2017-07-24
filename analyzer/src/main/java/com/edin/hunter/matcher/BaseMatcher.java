@@ -2,9 +2,9 @@ package com.edin.hunter.matcher;
 
 
 
-import com.edin.hunter.runner.Edge;
-import com.edin.hunter.runner.Graph;
-import com.edin.hunter.runner.Node;
+import com.edin.hunter.graph.DirectedGraph;
+import com.edin.hunter.graph.Edge;
+import com.edin.hunter.graph.Node;
 
 import java.util.*;
 
@@ -12,7 +12,7 @@ import java.util.*;
  * Created by dude on 6/25/17.
  */
 public abstract class BaseMatcher {
-    protected Graph graph;
+    protected DirectedGraph graph;
     protected List<Node> startNodes;
     protected List<Node> finishNodes;
 
@@ -20,11 +20,11 @@ public abstract class BaseMatcher {
     * @param graph a dataflow graph
     *
     * */
-    public BaseMatcher(Graph graph){
+    public BaseMatcher(DirectedGraph graph){
         this.graph = graph;
         markUpGraph();
     }
-    public Graph getGraph(){
+    public DirectedGraph getGraph(){
 
 
         return graph;
@@ -35,7 +35,7 @@ public abstract class BaseMatcher {
     *
     * @return
     * */
-    public abstract Graph detect();
+    public abstract DirectedGraph detect();
     //TODO lattice highlighter
     //latice definition
 
@@ -85,16 +85,16 @@ public abstract class BaseMatcher {
                 n.setAttribute("shape", "box");
                 n.setAttribute("color", "black");
             }
-            if (!n.getEdgesTowards(n).isEmpty()) {
-                if (n.getInDegree() - 1 == 0) {
-                    startNodes.add(n);
-                    n.setAttribute("color", "red");
-                }
-                if(n.getOutDegree() - 1 == 0) {
-                    finishNodes.add(n);
-                    n.setAttribute("color", "black");
-                }
-            }
+//            if (!n.getEdgesTowards(n).isEmpty()) {
+//                if (n.getInDegree() - 1 == 0) {
+//                    startNodes.add(n);
+//                    n.setAttribute("color", "red");
+//                }
+//                if(n.getOutDegree() - 1 == 0) {
+//                    finishNodes.add(n);
+//                    n.setAttribute("color", "black");
+//                }
+//            }
         }
     }
         /*

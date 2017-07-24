@@ -1,24 +1,26 @@
 package com.edin.hunter.runner;
 
 
+import com.edin.hunter.graph.DirectedGraph;
+
 /**
  * Created by dude on 6/16/17.
  */
 public abstract class BaseRunner {
-    protected Graph dataFlowGraph;
-    protected Graph dynamicCallGraph;
-    protected Graph staticCallGraph;
+    protected DirectedGraph dataFlowGraph;
+    protected DirectedGraph dynamicCallGraph;
+    protected DirectedGraph staticCallGraph;
 
 
     public abstract void run(String ...programArgs);
 
-    public Graph getDataFlowGraph(){
+    public DirectedGraph getDataFlowGraph(){
         return dataFlowGraph;
     }
-    public Graph getDynamicCallGraph(){
+    public DirectedGraph getDynamicCallGraph(){
         return dynamicCallGraph;
     }
-    public Graph getStaticCallGraph(){
+    public DirectedGraph getStaticCallGraph(){
         return staticCallGraph;
     }
 

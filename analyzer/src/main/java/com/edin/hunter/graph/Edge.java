@@ -1,4 +1,4 @@
-package com.edin.hunter.runner;
+package com.edin.hunter.graph;
 
 import java.util.HashMap;
 import java.util.Map;

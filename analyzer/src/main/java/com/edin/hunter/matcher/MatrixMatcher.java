@@ -1,8 +1,8 @@
 package com.edin.hunter.matcher;
 
-import com.edin.hunter.runner.Edge;
-import com.edin.hunter.runner.Graph;
-import com.edin.hunter.runner.Node;
+import com.edin.hunter.graph.Edge;
+import com.edin.hunter.graph.DirectedGraph;
+import com.edin.hunter.graph.Node;
 
 import java.util.List;
 
@@ -11,12 +11,12 @@ import java.util.List;
  */
 public class MatrixMatcher extends BaseMatcher {
 
-    public MatrixMatcher(Graph graph){
+    public MatrixMatcher(DirectedGraph graph){
         super(graph);
     }
 
     @Override
-    public Graph detect() {
+    public DirectedGraph detect() {
 
         removeSelfEdges();
         removeDuplicatedEdges();

@@ -1,6 +1,10 @@
 package com.edin.hunter.runner;
 
 
+import com.edin.hunter.graph.DirectedGraph;
+import com.edin.hunter.graph.Edge;
+import com.edin.hunter.graph.Node;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -74,9 +78,9 @@ public class CRunner extends BaseRunner {
 
     @Override
     public void run(String ...programArgs) {
-        dataFlowGraph = new Graph("Data Flow Graph");
-        staticCallGraph = new Graph("Static Call Graph");
-        dynamicCallGraph = new Graph("Dynamic Call Graph");
+        dataFlowGraph = new DirectedGraph("Data Flow DirectedGraph");
+        staticCallGraph = new DirectedGraph("Static Call DirectedGraph");
+        dynamicCallGraph = new DirectedGraph("Dynamic Call DirectedGraph");
         List<String> arguments = new ArrayList<>();
         arguments.add(executableFile.getPath());
         arguments.addAll(Arrays.asList(programArgs));
@@ -95,28 +99,33 @@ public class CRunner extends BaseRunner {
             while( (line = reader.readLine()) != null){
                 if(line.startsWith("BC")){
 
-                    List<Integer> args = Arrays.stream(line.replace("BC", "").trim().split(" ")).map(Integer::parseInt).collect(Collectors.toList());
+                    String[] args = line.replace("BC", "").trim().split("\\|");
 
-                    Node dynamicFromNode = dynamicCallGraph.getOrAddNode(args.get(0));
-                    Node dynamicToNode = dynamicCallGraph.getOrAddNode(args.get(2));
+                    Node dynamicFromNode = dynamicCallGraph.getOrAddNode(args[0]);
+                    Node dynamicToNode = dynamicCallGraph.getOrAddNode(args[2]);
+                    dynamicToNode.setAttribute("instruction", args[4]);
 
                     Edge dynamicEdge = dynamicFromNode.addEdgeTo(dynamicToNode);
-                    dynamicEdge.setAttribute("staticFromTo", args.get(1) + " -> " + args.get(3));
+                    dynamicEdge.setAttribute("staticFromTo", args[1] + " -> " + args[3]);
 
-                    Node staticFromNode = staticCallGraph.getOrAddNode(args.get(1));
-                    Node staticToNode  = staticCallGraph.getOrAddNode(args.get(3));
+                    Node staticFromNode = staticCallGraph.getOrAddNode(args[1]);
+                    Node staticToNode  = staticCallGraph.getOrAddNode(args[3]);
+
+                    staticToNode.setAttribute("instruction", args[4]);
 
                     Edge staticEdge = staticFromNode.addEdgeTo(staticToNode);
-                    staticEdge.setAttribute("dynamicFromTo", args.get(0) + " -> " + args.get(2));
+                    staticEdge.setAttribute("dynamicFromTo", args[0] + " -> " + args[2]);
 
 
                 }
                 //TODO add data flow attribute of containing basic block
                 if(line.startsWith("DF")){
-                    List<Integer> args = Arrays.stream(line.replace("DF", "").trim().split(" ")).map(elem -> Integer.parseInt(elem)).collect(Collectors.toList());
+                    String[] args = line.replace("DF", "").trim().split("\\|");
 
-                    Node fromNode = dataFlowGraph.getOrAddNode(args.get(0));
-                    Node toNode   = dataFlowGraph.getOrAddNode(args.get(1));
+
+                    Node fromNode = dataFlowGraph.getOrAddNode(Integer.parseInt(args[0]));
+                    Node toNode   = dataFlowGraph.getOrAddNode(Integer.parseInt(args[1]));
+
                     fromNode.addEdgeTo(toNode);
                 }
             }

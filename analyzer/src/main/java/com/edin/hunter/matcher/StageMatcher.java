@@ -1,8 +1,8 @@
 package com.edin.hunter.matcher;
 
-import com.edin.hunter.runner.Edge;
-import com.edin.hunter.runner.Graph;
-import com.edin.hunter.runner.Node;
+import com.edin.hunter.graph.Edge;
+import com.edin.hunter.graph.DirectedGraph;
+import com.edin.hunter.graph.Node;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class StageMatcher extends BaseMatcher {
 
-    public StageMatcher(Graph graph) {
+    public StageMatcher(DirectedGraph graph) {
         super(graph);
     }
 
@@ -116,7 +116,7 @@ public class StageMatcher extends BaseMatcher {
     }
 
     @Override
-    public Graph detect() {
+    public DirectedGraph detect() {
         removeSelfEdges();
         removeDuplicatedEdges();
         markUpGraph();

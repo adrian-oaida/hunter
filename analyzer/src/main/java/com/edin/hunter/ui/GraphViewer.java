@@ -1,12 +1,11 @@
 package com.edin.hunter.ui;
 
-import com.edin.hunter.runner.Graph;
+import com.edin.hunter.graph.DirectedGraph;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +18,7 @@ import java.util.concurrent.TimeUnit;
  * Created by dude on 7/7/17.
  */
 public class GraphViewer {
-    private Graph graph;
+    private DirectedGraph graph;
     private JPanel graphPanel;
     private JFrame graphFrame;
     private Dimension graphImageSize;
@@ -28,17 +27,17 @@ public class GraphViewer {
     private ScheduledFuture<?> scheduledFuture;
 
 
-    public GraphViewer(Graph graph){
+    public GraphViewer(DirectedGraph graph){
         this.graph = graph;
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 
         GraphicsDevice[] devices = ge.getScreenDevices();
         currentDisplayDevice = ge.getDefaultScreenDevice();
         if(devices.length == 2)
-            currentDisplayDevice = devices[0];
+            currentDisplayDevice = devices[1];
 
-        graphImageSize = new Dimension((currentDisplayDevice.getDefaultConfiguration().getBounds().width/2),
-                (currentDisplayDevice.getDefaultConfiguration().getBounds().height)/2);
+        graphImageSize = new Dimension((int)(currentDisplayDevice.getDefaultConfiguration().getBounds().width/(1.5)),
+                (int)((currentDisplayDevice.getDefaultConfiguration().getBounds().height)/(1.5)));
         graphPanel = new JPanel();
         graphPanel.setSize(graphImageSize);
 
@@ -53,9 +52,9 @@ public class GraphViewer {
     }
 
     private class GraphUIUpdater implements Runnable{
-        private Graph graph;
+        private DirectedGraph graph;
         private JPanel panel;
-        public GraphUIUpdater(Graph graph, JPanel panel){
+        public GraphUIUpdater(DirectedGraph graph, JPanel panel){
             this.graph = graph;
             this.panel = panel;
         }
@@ -63,7 +62,7 @@ public class GraphViewer {
         public void run() {
             String graphAsDot = graph.toDotString();
 
-            //System.out.println(graphAsDot);
+//            System.out.println(graphAsDot);
             List<String> command = new ArrayList<>();
             command.add("dot");
             command.add("-Tpng");

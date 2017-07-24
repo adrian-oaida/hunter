@@ -1,7 +1,7 @@
 package com.edin.hunter.matcher;
 
-import com.edin.hunter.runner.Graph;
-import com.edin.hunter.runner.Node;
+import com.edin.hunter.graph.DirectedGraph;
+import com.edin.hunter.graph.Node;
 import com.edin.hunter.ui.GraphViewer;
 
 /**
@@ -10,11 +10,11 @@ import com.edin.hunter.ui.GraphViewer;
 public class LatticeGenerator {
     private int workers;
     private int stages;
-    private Graph graph;
+    private DirectedGraph graph;
     public LatticeGenerator(int workers, int stages){
         this.workers = workers;
         this.stages = stages;
-        this.graph = new Graph("Lattice " + workers + " X " + stages + "");
+        this.graph = new DirectedGraph("Lattice " + workers + " X " + stages + "");
 
     }
     public void generateLattice(){

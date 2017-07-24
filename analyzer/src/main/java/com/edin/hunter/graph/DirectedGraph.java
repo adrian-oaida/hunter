@@ -1,16 +1,16 @@
-package com.edin.hunter.runner;
+package com.edin.hunter.graph;
 
 import java.util.*;
 
 /**
  * Created by dude on 7/6/17.
  */
-public class Graph implements Iterable<Node>{
+public class DirectedGraph implements Iterable<Node>{
     private String name;
-    private Map<Integer, Node> nodeMap = new HashMap<>();
-    private int maxNodeId = 0;
+    protected Map<Integer, Node> nodeMap = new HashMap<>();
+    protected int maxNodeId = 0;
 
-    public Graph(String name){
+    public DirectedGraph(String name){
         this.name = name;
     }
     public String getName(){
@@ -29,6 +29,10 @@ public class Graph implements Iterable<Node>{
     }
     public int getMaxNodeId(){
         return maxNodeId;
+    }
+
+    public Node getOrAddNode(String nodeId){
+        return getOrAddNode(Integer.parseInt(nodeId));
     }
     public Node getOrAddNode(int nodeId){
         if(nodeId > maxNodeId){
@@ -79,6 +83,50 @@ public class Graph implements Iterable<Node>{
 
         sb.append("\n}");
 
+        return sb.toString();
+    }
+    public String toJSON(){
+        StringBuilder sb = new StringBuilder();
+        List<Edge> edges = new ArrayList<>();
+
+        sb.append("{");
+        sb.append("\"nodes\": [");
+        String prefix = "";
+        for(Node node : nodeMap.values()){
+            sb.append(prefix);
+            prefix = ",";
+            sb.append("{");
+
+            sb.append("\"id\": ");sb.append("\"");sb.append(node.toString());sb.append("\"");
+
+            for(Map.Entry<String, String> attribute : node.getAttributeMap().entrySet()){
+                sb.append(",");
+                sb.append("\"").append(attribute.getKey()).append("\": ");
+                sb.append("\"").append(attribute.getValue()).append("\"");
+            }
+            sb.append("}");
+
+            edges.addAll(node.getOutgoingEdges());
+        }
+
+        sb.append("],");
+
+        prefix = "";
+        sb.append("\"links\": [");
+        for(Edge edge : edges){
+            sb.append(prefix);
+            prefix = ",";
+            sb.append("{");
+            sb.append("\"source\": ").append("\"").append(edge.getSource()).append("\",");
+            sb.append("\"target\": ").append("\"").append(edge.getTarget()).append("\",");
+            sb.append("\"color\": \"red\",");
+
+            sb.append("\"value\": 2");
+
+            sb.append("}");
+        }
+        sb.append("]");
+        sb.append("}");
         return sb.toString();
     }
 }
