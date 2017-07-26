@@ -10,9 +10,10 @@
 #include<pthread.h>
 #include "../tools/tools.h"
 
-
+#define MAX_DATA 10000
 #define MAX_WORKERS 50
 
+#define init_int_data(array,size) bzero(array, size * sizeof(int))
 
 void *worker(void *arg1);
 
@@ -20,7 +21,6 @@ void *worker(void *arg1);
 int data_size, num_workers;
 
 int *data;
-
 
 int main(int argc, char *argv[]){
 
@@ -36,11 +36,11 @@ int main(int argc, char *argv[]){
     data_size = atoi(argv[1]);
     num_workers = atoi(argv[2]);
 
-    worker_ids = (pthread_t *) malloc(num_workers * sizeof(pthread_t));
-
     init_barrier(num_workers);
 
-    data = create_and_init_int_array(data_size);
+    data = (int*)malloc(data_size * sizeof(int));
+    worker_ids = (pthread_t *)malloc(num_workers * sizeof(pthread_t));
+
 
     //creating the workers and putting them to work
     for(i = 0; i < num_workers; i++){
@@ -63,8 +63,7 @@ int main(int argc, char *argv[]){
     }
     fprintf(results, "\n");
 
-    free(worker_ids);
-    free(data);
+    trace_end();
     return 0;
 }
 
@@ -80,18 +79,15 @@ void *worker(void *arg){
 
     for(int i = 0; i < data_size; i++){
 
-        if(i % 2 == 0) {
-            worker_state += data[i];
-            data[i]++;
-        }else{
-            worker_state++;
-            data[i] = worker_state + data[i];
-        }
+
+        worker_state = worker_state + 1;
+
+        data[i] = data[i] + worker_id;
 
         //wait for other workers to catch up
+
         wait_for_barrier();
     }
-
 
     for(int i = 0; i < (num_workers - worker_id -1); i++){
         //wait for other workers to catch up to end the stage
