@@ -19,6 +19,7 @@ public class Edge {
         this.id = EdgeIdGenerator.getNextId();
         this.source = source;
         this.target = target;
+        this.attributes.put("color", "black");
     }
 
     public Node getSource(){
@@ -64,6 +65,23 @@ public class Edge {
     @Override
     public String toString(){
         return source.getId() + " -> " + target.getId();
+    }
+
+    public String toJSON() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        sb.append("\"source\": ").append("\"").append(source).append("\",");
+        sb.append("\"target\": ").append("\"").append(target).append("\",");
+        sb.append("\"value\": 2");
+
+        for(Map.Entry<String, String> attribute : attributes.entrySet()){
+            sb.append(",");
+            sb.append("\"").append(attribute.getKey()).append("\": ");
+            sb.append("\"").append(attribute.getValue()).append("\"");
+        }
+        sb.append("}");
+
+        return sb.toString();
     }
 }
 class EdgeIdGenerator{

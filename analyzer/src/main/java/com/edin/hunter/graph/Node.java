@@ -143,4 +143,22 @@ public class Node {
     }
 
 
+    public String toJSON() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+
+        sb.append("\"id\": ");sb.append("\"");sb.append(this.id);sb.append("\"");
+
+        for(Map.Entry<String, String> attribute : attributes.entrySet()){
+            sb.append(",");
+            sb.append("\"").append(attribute.getKey()).append("\": ");
+            sb.append("\"").append(attribute.getValue().replace(" ", "")).append("\"");
+        }
+        sb.append("}");
+        return sb.toString();
+    }
+
+    public void copyAttributesFrom(Node node) {
+        this.attributes.putAll(node.attributes);
+    }
 }

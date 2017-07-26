@@ -95,16 +95,7 @@ public class DirectedGraph implements Iterable<Node>{
         for(Node node : nodeMap.values()){
             sb.append(prefix);
             prefix = ",";
-            sb.append("{");
-
-            sb.append("\"id\": ");sb.append("\"");sb.append(node.toString());sb.append("\"");
-
-            for(Map.Entry<String, String> attribute : node.getAttributeMap().entrySet()){
-                sb.append(",");
-                sb.append("\"").append(attribute.getKey()).append("\": ");
-                sb.append("\"").append(attribute.getValue()).append("\"");
-            }
-            sb.append("}");
+            sb.append(node.toJSON());
 
             edges.addAll(node.getOutgoingEdges());
         }
@@ -116,14 +107,7 @@ public class DirectedGraph implements Iterable<Node>{
         for(Edge edge : edges){
             sb.append(prefix);
             prefix = ",";
-            sb.append("{");
-            sb.append("\"source\": ").append("\"").append(edge.getSource()).append("\",");
-            sb.append("\"target\": ").append("\"").append(edge.getTarget()).append("\",");
-            sb.append("\"color\": \"red\",");
-
-            sb.append("\"value\": 2");
-
-            sb.append("}");
+            sb.append(edge.toJSON());
         }
         sb.append("]");
         sb.append("}");
