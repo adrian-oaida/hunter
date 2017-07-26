@@ -147,7 +147,7 @@ void *worker(void *arg){
         shadow_other_pipe = basic_block_id;
         exit_block(worker_id);
 
-        basic_block_id = enter_block(8, worker_id, "data[i] = tmp");
+        basic_block_id = enter_block(8, worker_id, "data[i] = tmp + other_pipe");
 
         data[i] = tmp + other_pipe;
 
