@@ -44,7 +44,7 @@ int main(int argc, char *argv[]){
     shadow_data = get_trace_array(data_size);
 
     trace_init();
-    enter_block(1, 0);
+    enter_block(1, num_workers + 1, "for(i = 0; i < num_workers; i++)");
     //creating the workers and putting them to work
     for(i = 0; i < num_workers; i++){
 
@@ -56,7 +56,7 @@ int main(int argc, char *argv[]){
         pthread_join(worker_ids[i], NULL);
 
     }
-    exit_block(0);
+    exit_block(num_workers + 1);
     trace_end();
     //writing the computation result to a file
 
@@ -74,61 +74,92 @@ int main(int argc, char *argv[]){
 void *worker(void *arg){
     int worker_id = (int)arg;
     int worker_state = worker_id;
-    int shadow_worker_state;
+
+    int shadow_worker_state = 0;
 
     for(int i = 0; i < worker_id;i++){
         //wait for other workers to catch to star the stage
         wait_for_barrier();
     }
-    int basic_block_id;
+    int basic_block_id = 0;
 
-    enter_block(2, worker_id + 1);
+    basic_block_id = enter_block(2, worker_id,"for(int i = 0; i < data_size; i++)");
+
     for(int i = 0; i < data_size; i++){
-        enter_block(3, worker_id + 1);
-        basic_block_id = enter_block(4, worker_id + 1);
+        basic_block_id = enter_block(3, worker_id, "worker_state = worker_state + data[i]");
 
-        if(i % 2 == 0) {
-            data_flow_trace(shadow_worker_state, basic_block_id);
-            data_flow_trace(shadow_data[i], basic_block_id);
-            if(i > 1){
-                data_flow_trace(shadow_data[i - 2], basic_block_id);
-                worker_state = data[i - 2];
+        worker_state = worker_state + data[i];
+
+        data_flow_trace(shadow_data[i], basic_block_id, worker_id);
+        data_flow_trace(shadow_worker_state, basic_block_id, worker_id);
+        shadow_worker_state = basic_block_id;
+        exit_block(worker_id);
+
+        basic_block_id = enter_block(4, worker_id, "other_pipe = data[i]");
+        int other_pipe;
+        int shadow_other_pipe = 0;
+
+        other_pipe = data[i];
+
+        data_flow_trace(shadow_data[i], basic_block_id, worker_id);
+        shadow_other_pipe = basic_block_id;
+        exit_block(worker_id);
+
+        //iterate over something while we are using data[i]
+        //and make a decision with previous state
+        basic_block_id = enter_block(5, worker_id, "tmp = data[i]");
+        int shadow_tmp = 0;
+        int tmp;
+
+        tmp = worker_state;
+
+        data_flow_trace(shadow_worker_state, basic_block_id, worker_id);
+        shadow_tmp = basic_block_id;
+        exit_block(worker_id);
+
+        for(int j = 0; j < 6; j++){
+            if(j % 2 == 0){
+                basic_block_id = enter_block(5, worker_id, "tmp = tmp * 5");
+
+                tmp = tmp * 5;
+
+                data_flow_trace(shadow_tmp, basic_block_id, worker_id);
+                shadow_tmp = basic_block_id;
+
+                exit_block(worker_id);
+            }else{
+                basic_block_id = enter_block(6, worker_id, "tmp = tmp * 5");
+
+                tmp = tmp * other_pipe;
+
+                data_flow_trace(shadow_tmp, basic_block_id, worker_id);
+                data_flow_trace(shadow_other_pipe, basic_block_id, worker_id);
+                shadow_tmp = basic_block_id;
+
+                exit_block(worker_id);
             }
 
-            shadow_worker_state = basic_block_id;
-
-            data_flow_trace(shadow_data[i], basic_block_id);
-
-            data[i] = data[i] + 1;
-
-            shadow_data[i] = basic_block_id;
-        }else{
-
-            worker_state = worker_state + 1;
-            data_flow_trace(shadow_worker_state, basic_block_id);
-            shadow_worker_state = basic_block_id;
-
-
-            data_flow_trace(shadow_data[i], basic_block_id);
-            if(i > 1){
-                data_flow_trace(shadow_data[i - 2], basic_block_id);
-                data_flow_trace(shadow_worker_state, basic_block_id);
-
-                data[i] = worker_state + data[i - 2];
-            }
-            else{
-                data[i] = worker_state;
-            }
-            shadow_data[i] = basic_block_id;
         }
+        basic_block_id = enter_block(7, worker_id, "other_pipe *= 3");
+        other_pipe *= 3;
 
-        exit_block(worker_id + 1);
-        exit_block(worker_id + 1);
+        data_flow_trace(shadow_other_pipe, basic_block_id, worker_id);
+        shadow_other_pipe = basic_block_id;
+        exit_block(worker_id);
+
+        basic_block_id = enter_block(8, worker_id, "data[i] = tmp");
+
+        data[i] = tmp + other_pipe;
+
+        data_flow_trace(shadow_other_pipe, basic_block_id, worker_id);
+        data_flow_trace(shadow_tmp, basic_block_id, worker_id);
+        shadow_data[i] = basic_block_id;
+        exit_block(worker_id);
 
         //wait for other workers to catch up
         wait_for_barrier();
     }
-    exit_block(worker_id + 1);
+    exit_block(worker_id);
 
     for(int i = 0; i < (num_workers - worker_id -1); i++){
         //wait for other workers to catch up to end the stage
