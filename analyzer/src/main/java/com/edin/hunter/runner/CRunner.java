@@ -103,6 +103,7 @@ public class CRunner extends BaseRunner {
 
                     Node dynamicFromNode = dynamicCallGraph.getOrAddNode(args[0]);
                     Node dynamicToNode = dynamicCallGraph.getOrAddNode(args[2]);
+
                     dynamicToNode.setAttribute("instruction", args[4]);
 
                     Edge dynamicEdge = dynamicFromNode.addEdgeTo(dynamicToNode);
@@ -122,9 +123,11 @@ public class CRunner extends BaseRunner {
                 if(line.startsWith("DF")){
                     String[] args = line.replace("DF", "").trim().split("\\|");
 
-
                     Node fromNode = dataFlowGraph.getOrAddNode(Integer.parseInt(args[0]));
+                    fromNode.copyAttributesFrom(dynamicCallGraph.getOrAddNode(fromNode.getId()));
+
                     Node toNode   = dataFlowGraph.getOrAddNode(Integer.parseInt(args[1]));
+                    toNode.copyAttributesFrom(dynamicCallGraph.getOrAddNode(toNode.getId()));
 
                     fromNode.addEdgeTo(toNode);
                 }
