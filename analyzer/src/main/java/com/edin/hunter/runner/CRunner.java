@@ -102,9 +102,12 @@ public class CRunner extends BaseRunner {
                     String[] args = line.replace("BC", "").trim().split("\\|");
 
                     Node dynamicFromNode = dynamicCallGraph.getOrAddNode(args[0]);
+                    dynamicFromNode.setAttribute("staticId", args[1]);
+
                     Node dynamicToNode = dynamicCallGraph.getOrAddNode(args[2]);
 
                     dynamicToNode.setAttribute("instruction", args[4]);
+                    dynamicToNode.setAttribute("staticId", args[3]);
 
                     Edge dynamicEdge = dynamicFromNode.addEdgeTo(dynamicToNode);
                     dynamicEdge.setAttribute("staticFromTo", args[1] + " -> " + args[3]);

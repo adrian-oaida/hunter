@@ -15,7 +15,7 @@ public abstract class BaseMatcher {
     protected DirectedGraph graph;
     protected List<Node> startNodes;
     protected List<Node> finishNodes;
-
+    private String[] colorArray = new String[]{"salmon", "coral", "gold", "lime", "darkgreen", "aqua", "tan", "magenta","royalblue", "navy"};
     /*
     * @param graph a dataflow graph
     *
@@ -72,7 +72,7 @@ public abstract class BaseMatcher {
         startNodes = new ArrayList<>();
         finishNodes = new ArrayList<>();
         for(Node n : graph) {
-            n.setAttribute("color", "blue");
+            n.setAttribute("color", colorArray[Integer.parseInt(n.getAttribute("staticId"))]);
             if (n.getInDegree() == 0) {
                 startNodes.add(n);
                 System.out.println("start " + n);
