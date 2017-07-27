@@ -22,6 +22,7 @@ int data_size, num_workers;
 
 int *data;
 
+
 int main(int argc, char *argv[]){
 
     pthread_t *worker_ids;
@@ -63,7 +64,6 @@ int main(int argc, char *argv[]){
     }
     fprintf(results, "\n");
 
-    trace_end();
     return 0;
 }
 
@@ -71,6 +71,9 @@ int main(int argc, char *argv[]){
 void *worker(void *arg){
     int worker_id = (int)arg;
     int worker_state = worker_id;
+
+
+
 
     for(int i = 0; i < worker_id;i++){
         //wait for other workers to catch to star the stage
@@ -82,7 +85,13 @@ void *worker(void *arg){
 
         worker_state = worker_state + 1;
 
+
+
+
+
         data[i] = data[i] + worker_id;
+
+
 
         //wait for other workers to catch up
 

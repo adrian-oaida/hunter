@@ -127,8 +127,7 @@ void *worker(void *arg) {
         for (i = first; i <= last; i++) {
             basic_block_id = enter_block(3, worker_id, "for (j = 1; j <= gridSize; j++)");
             for (j = 1; j <= gridSize; j++) {
-                basic_block_id = enter_block(4, worker_id, "grid2[i][j] = (grid1[i-1][j] + grid1[i+1][j] +\n"
-                        "                               grid1[i][j-1] + grid1[i][j+1]) * 0.25");
+                basic_block_id = enter_block(4, worker_id, "grid2[i][j] = (grid1[i-1][j] + grid1[i+1][j] + grid1[i][j-1] + grid1[i][j+1]) * 0.25");
 
                 grid2[i][j] = (grid1[i-1][j] + grid1[i+1][j] +
                                grid1[i][j-1] + grid1[i][j+1]) * 0.25;
@@ -150,8 +149,7 @@ void *worker(void *arg) {
         for (i = first; i <= last; i++) {
             basic_block_id = enter_block(6, worker_id, "for (j = 1; j <= gridSize; j++)");
             for (j = 1; j <= gridSize; j++) {
-                basic_block_id = enter_block(7, worker_id, "grid1[i][j] = (grid2[i-1][j] + grid2[i+1][j] +\n"
-                        "                               grid2[i][j-1] + grid2[i][j+1]) * 0.25;");
+                basic_block_id = enter_block(7, worker_id, "grid1[i][j] = (grid2[i-1][j] + grid2[i+1][j] + grid2[i][j-1] + grid2[i][j+1]) * 0.25;");
 
                 grid1[i][j] = (grid2[i-1][j] + grid2[i+1][j] +
                                grid2[i][j-1] + grid2[i][j+1]) * 0.25;

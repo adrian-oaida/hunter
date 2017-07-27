@@ -76,10 +76,11 @@ void *worker(void *arg){
     }
     int tmp;
 
-
     for(int i = 0; i < data_size; i++){
 
         worker_state = worker_state + data[i];
+
+
 
 
         //iterate over something while we are using data[i]
@@ -89,15 +90,20 @@ void *worker(void *arg){
 
 
         for(int j = 0; j < 5; j++){
+
             tmp = tmp * 5;
+
+
+
         }
 
+
         data[i] = tmp;
+
 
         //wait for other workers to catch up
         wait_for_barrier();
     }
-    exit_block(worker_id);
 
     for(int i = 0; i < (num_workers - worker_id -1); i++){
         //wait for other workers to catch up to end the stage

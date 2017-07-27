@@ -52,7 +52,6 @@ int main(int argc, char *argv[]){
         pthread_join(worker_ids[i], NULL);
 
     }
-    trace_end();
     //writing the computation result to a file
 
     FILE *results = fopen("results", "w");
@@ -80,9 +79,18 @@ void *worker(void *arg){
 
         worker_state = worker_state + 1;
 
+
+
+
         temp = data[i];
 
+
+
+
         data[i] = 1 + worker_state + temp;
+
+
+
 
         //wait for other workers to catch up
         wait_for_barrier();

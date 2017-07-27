@@ -1,5 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<string.h>
+#include "../tools/tools.h"
 
 int n;
 int *array;
@@ -15,19 +17,27 @@ int main(int argc, char *argv[]){
     }
     fclose(f);
 
-    int swap;
 
+    int swap;
     for(int i = 0; i < n; i++){
         for(int j = 0; j < n - 1; j++){
 
             if(array[j] > array[j + 1]){
 
                 swap = array[j + 1];
+
+
                 array[j + 1] = array[j];
+
+
+
                 array[j] = swap;
+
+
             }
         }
     }
+
     f = fopen(argv[2], "w");
 
     fprintf(f, "%d \n", n);

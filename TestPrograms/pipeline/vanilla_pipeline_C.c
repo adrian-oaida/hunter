@@ -52,7 +52,6 @@ int main(int argc, char *argv[]){
         pthread_join(worker_ids[i], NULL);
 
     }
-
     //writing the computation result to a file
 
     FILE *results = fopen("results", "w");
@@ -72,6 +71,7 @@ void *worker(void *arg){
     int previous_worker_state;
 
 
+
     for(int i = 0; i < worker_id;i++){
         //wait for other workers to catch to star the stage
         wait_for_barrier();
@@ -82,17 +82,19 @@ void *worker(void *arg){
         data[i] += 1 + previous_worker_state;
 
 
+
         previous_worker_state = worker_state;
 
 
+
         worker_state = worker_state + 1;
+
 
         //wait for other workers to catch up
         wait_for_barrier();
 
 
     }
-
 
     for(int i = 0; i < (num_workers - worker_id -1); i++){
         //wait for other workers to catch up to end the stage
