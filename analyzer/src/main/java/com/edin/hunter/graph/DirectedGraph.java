@@ -53,6 +53,25 @@ public class DirectedGraph implements Iterable<Node>{
         return nodeMap.values().iterator();
     }
 
+    @Override
+    public DirectedGraph clone(){
+        DirectedGraph graph = new DirectedGraph(name);
+        for(Node node : nodeMap.values()){
+            Node clonedNode = graph.getOrAddNode(node.getId());
+            clonedNode.copyAttributesFrom(node);
+
+            for(Edge edge : node.getOutgoingEdges()){
+                Edge clonedEdge = clonedNode.addEdgeTo(graph.getOrAddNode(edge.getTarget().getId()));
+                clonedEdge.copyAttributesFrom(edge);
+            }
+            for(Edge edge : node.getIncomingEdges()){
+                Edge clonedEdge = clonedNode.addEdgeTo(graph.getOrAddNode(edge.getSource().getId()));
+                clonedEdge.copyAttributesFrom(edge);
+            }
+        }
+
+        return graph;
+    }
     public String toDotString(){
         StringBuilder sb = new StringBuilder();
         sb.append("digraph "); sb.append(name.replace(" ", "")); sb.append(" {\n");

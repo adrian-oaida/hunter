@@ -1,6 +1,7 @@
 package com.edin.hunter.main;
 
 
+import com.edin.hunter.annotator.Parser;
 import com.edin.hunter.graph.DirectedGraph;
 import com.edin.hunter.matcher.BackwardStageMatcher;
 import com.edin.hunter.matcher.BaseMatcher;
@@ -30,40 +31,41 @@ public class Main {
         BaseRunner programRun = null;
         try {
 //            programRun = new CRunner("/Users/dude/edin/msc/hunter/TestPrograms/other/parallel_jacobi_iteration.c", "/Users/dude/edin/msc/hunter/TestPrograms/tools/");
-//            programRun = new CRunner("/Users/dude/edin/msc/hunter/TestPrograms/pipeline/simple_pipeline.c", "/Users/dude/edin/msc/hunter/TestPrograms/tools/");
+//            programRun = new CRunner("/Users/dude/edin/msc/hunter/TestPrograms/pipeline/simple_pipelinstatefe.c", "/Users/dude/edin/msc/hunter/TestPrograms/tools/");
 //            programRun = new CRunner("/Users/dude/edin/msc/hunter/TestPrograms/other/parallel_jacobi_iteration.c", "/Users/dude/edin/msc/hunter/TestPrograms/tools/");
-            programRun = new CRunner("/Users/dude/edin/msc/hunter/TestPrograms/pipeline/statefullA_pipeline.c", "/Users/dude/edin/msc/hunter/TestPrograms/tools/");
+            programRun = new CRunner("/Users/dude/edin/msc/hunter/TestPrograms/pipeline/pipeline_D.c", "/Users/dude/edin/msc/hunter/TestPrograms/tools/");
+//            programRun = new CRunner("/Users/dude/edin/msc/hunter/TestPrograms/sorting/serial_quicksort.c", "/Users/dude/edin/msc/hunter/TestPrograms/tools/");
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 //        programRun.run("/Users/dude/edin/msc/hunter/TestPrograms/other/matrix_addition_input", "/tmp/matrix_addition_output");
 //        programRun.run("/Users/dude/edin/msc/hunter/TestPrograms/other/matrix_multiplication_input", "/tmp/matrix_multiplication_output");
+//        programRun.run("/Users/dude/edin/msc/hunter/TestPrograms/sorting/random_sort_input", "/tmp/sorting_output");
 
-//        programRun.run("5", "2", "3");
-
+////        programRun.run("5", "2", "3");
+//
         programRun.run("4", "6");
-
+//
         programRun.getDataFlowGraph().removeNode(0);
 
 //        produceConsumerRunner.run("20", "");
 
 
 
-
-
-//        GraphViewer viewer = new GraphViewer(programRun.getDataFlowGraph());
+//        BaseMatcher matcher = new BackwardStageMatcher(programRun.getDataFlowGraph());
+//        GraphViewer viewer = new GraphViewer(matcher.getGraph());
 //        viewer.periodicUpdateView(100);
-//
 //        viewer.displayGraph();
+//        matcher.detect();
 
-
-
-        BaseMatcher matcher = new BackwardStageMatcher(programRun.getDataFlowGraph());
-        RemoteGraphViewer viewer = new RemoteGraphViewer(matcher.getGraph());
+        BaseMatcher matcher = new BackwardStageMatcher(programRun.getDataFlowGraph().clone());
+        RemoteGraphViewer viewer = new RemoteGraphViewer(programRun.getDataFlowGraph(), matcher.getGraph());
         viewer.startServer();
         matcher.detect();
-
+//
+//        RemoteGraphViewer viewer = new RemoteGraphViewer(programRun.getStaticCallGraph());
+//        viewer.startServer();
 
 //        LatticeGenerator generator = new LatticeGenerator(5 , 8);
 //        generator.generateLattice();

@@ -15,10 +15,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RemoteGraphViewer {
-    private DirectedGraph graph;
+    private DirectedGraph originalGraph;
+    private DirectedGraph processedGraph;
     private HttpServer server;
-    public RemoteGraphViewer(DirectedGraph graph){
-        this.graph = graph;
+    public RemoteGraphViewer(DirectedGraph originalGraph, DirectedGraph processedGraph){
+        this.originalGraph = originalGraph;
+        this.processedGraph = processedGraph;
 
     }
     public void startServer(){
@@ -26,7 +28,9 @@ public class RemoteGraphViewer {
             if(server != null)
                 stopServer();
             server = HttpServer.create(new InetSocketAddress(5566), 0);
-            server.createContext("/graph.json",new GraphJSONHandler(graph));
+            server.createContext("/originalGraph.json",new GraphJSONHandler(originalGraph));
+            server.createContext("/processedGraph.json",new GraphJSONHandler(processedGraph));
+
             server.start();
 //            showPageInBrowser();
         } catch (IOException e) {

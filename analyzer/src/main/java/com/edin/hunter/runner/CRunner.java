@@ -97,6 +97,7 @@ public class CRunner extends BaseRunner {
             String line;
             String currentStaticBlockId = null;
             while( (line = reader.readLine()) != null){
+
                 if(line.startsWith("BC")){
 
                     String[] args = line.replace("BC", "").trim().split("\\|");

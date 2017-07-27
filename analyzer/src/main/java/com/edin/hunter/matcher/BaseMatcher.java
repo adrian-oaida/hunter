@@ -15,7 +15,7 @@ public abstract class BaseMatcher {
     protected DirectedGraph graph;
     protected List<Node> startNodes;
     protected List<Node> finishNodes;
-    private String[] colorArray = new String[]{"salmon", "coral", "gold", "lime", "darkgreen", "aqua", "tan", "magenta","royalblue", "navy"};
+    private String[] colorArray = new String[]{"blue", "blueviolet", "brown", "burlywood", "cadetblue", "Chartreuse", "Chocolate", "Coral", "CornflowerBlue", "Crimson", "Cyan", "DarkBlue", "DarkCyan", "DarkGoldenRod", "DarkGreen", "DarkMagenta", "DarkSalmon", "DarkSlateBlue","DarkTurquoise"};
     /*
     * @param graph a dataflow graph
     *

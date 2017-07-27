@@ -50,6 +50,10 @@ public class Node {
         attributes.put(attributeName, attributeValue);
     }
 
+    public void copyAttributesFrom(Node node) {
+        this.attributes.putAll(node.attributes);
+    }
+
     public int getId(){
         return id;
     }
@@ -158,7 +162,5 @@ public class Node {
         return sb.toString();
     }
 
-    public void copyAttributesFrom(Node node) {
-        this.attributes.putAll(node.attributes);
-    }
+
 }

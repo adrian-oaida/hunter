@@ -2,6 +2,7 @@ package com.edin.hunter.graph;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * Created by dude on 7/6/17.
@@ -32,7 +33,9 @@ public class Edge {
     public Map<String, String> getAttributeMap(){
         return attributes;
     }
-
+    public void copyAttributesFrom(Edge edge) {
+        this.attributes.putAll(edge.attributes);
+    }
     public String getAttribute(String attributeName){
         return attributes.get(attributeName);
     }
@@ -62,6 +65,7 @@ public class Edge {
         }
         return hashCode;
     }
+
     @Override
     public String toString(){
         return source.getId() + " -> " + target.getId();
@@ -72,7 +76,7 @@ public class Edge {
         sb.append("{");
         sb.append("\"source\": ").append("\"").append(source).append("\",");
         sb.append("\"target\": ").append("\"").append(target).append("\",");
-        sb.append("\"value\": 2");
+        sb.append("\"value\": ").append(new Random().nextInt());
 
         for(Map.Entry<String, String> attribute : attributes.entrySet()){
             sb.append(",");

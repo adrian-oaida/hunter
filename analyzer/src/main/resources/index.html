@@ -1,0 +1,76 @@
+<head>
+    <script src="3d-force-graph.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/qwest/4.4.5/qwest.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.1.4/papaparse.min.js"></script>
+
+    <script type="application/javascript">
+
+
+    </script>
+
+
+    <script type="text/css">
+        body {
+            text-align: center;
+            font-family: Sans-serif;
+            margin: 0;
+        }
+
+        .graph-data {
+            position: absolute;
+            top: 0px;
+            right: 0px;
+            padding: 5px;
+        }
+
+        .toggle-data-btn {
+            cursor: pointer;
+            opacity: 0.85;
+        }
+
+        .toggle-data-btn:hover {
+            opacity: 1;
+        }
+
+        #graph-data-description {
+            font-size: 12px;
+            color: slategrey;
+        }
+    </script>
+</head>
+
+<body>
+<div class="graph-data" style="width:100%; overflow: hidden;">
+    <div id="originalGraph" style="float: left;width:50%;"></div>
+    <div id="processedGraph" style="padding-left: 50%; width:50%;"></div>
+</div>
+
+<script type="application/javascript">
+
+
+    const originalGraph = ForceGraph3D()(document.getElementById("originalGraph"));
+    const processedGraph = ForceGraph3D()(document.getElementById("processedGraph"));
+
+
+    originalGraph
+        .cooldownTicks(200)
+        .nameField('instruction')
+        .lineOpacity(1.0)
+        .forceEngine('ngraph')
+        .width(window.innerWidth/2)
+        .autoColorBy('color')
+        .includeArrows(true)
+        .jsonUrl('http://localhost:5566/originalGraph.json');
+
+    processedGraph
+        .cooldownTicks(200)
+        .nameField('instruction')
+        .lineOpacity(1.0)
+        .width(window.innerWidth/2)
+        .forceEngine('ngraph')
+        .autoColorBy('color')
+        .includeArrows(true)
+        .jsonUrl('http://localhost:5566/processedGraph.json');
+
+</script>
+</body>
