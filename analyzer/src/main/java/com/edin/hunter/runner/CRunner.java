@@ -107,19 +107,21 @@ public class CRunner extends BaseRunner {
 
                     Node dynamicToNode = dynamicCallGraph.getOrAddNode(args[2]);
 
-                    dynamicToNode.setAttribute("instruction", args[4]);
+                    dynamicToNode.setAttribute("instruction", String.format("\"%s\"", args[4]));
                     dynamicToNode.setAttribute("staticId", args[3]);
 
                     Edge dynamicEdge = dynamicFromNode.addEdgeTo(dynamicToNode);
-                    dynamicEdge.setAttribute("staticFromTo", args[1] + " -> " + args[3]);
+//                    dynamicEdge.setAttribute("staticFromTo", args[1] + " -> " + args[3]);
 
                     Node staticFromNode = staticCallGraph.getOrAddNode(args[1]);
                     Node staticToNode  = staticCallGraph.getOrAddNode(args[3]);
 
-                    staticToNode.setAttribute("instruction", args[4]);
+                    staticToNode.setAttribute("instruction", String.format("\"%s\"", args[4]));
+                    staticToNode.associateWithNode(dynamicToNode);
+                    dynamicToNode.associateWithNode(staticToNode);
 
                     Edge staticEdge = staticFromNode.addEdgeTo(staticToNode);
-                    staticEdge.setAttribute("dynamicFromTo", args[0] + " -> " + args[2]);
+//                    staticEdge.setAttribute("dynamicFromTo", args[0] + " -> " + args[2]);
 
 
                 }
@@ -128,11 +130,10 @@ public class CRunner extends BaseRunner {
                     String[] args = line.replace("DF", "").trim().split("\\|");
 
                     Node fromNode = dataFlowGraph.getOrAddNode(Integer.parseInt(args[0]));
-                    fromNode.copyAttributesFrom(dynamicCallGraph.getOrAddNode(fromNode.getId()));
 
                     Node toNode   = dataFlowGraph.getOrAddNode(Integer.parseInt(args[1]));
                     toNode.copyAttributesFrom(dynamicCallGraph.getOrAddNode(toNode.getId()));
-
+                    toNode.setAttribute("staticNodeId", args[2]);
                     fromNode.addEdgeTo(toNode);
                 }
             }
