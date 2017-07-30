@@ -64,10 +64,10 @@ public class DirectedGraph implements Iterable<Node>{
                 Edge clonedEdge = clonedNode.addEdgeTo(graph.getOrAddNode(edge.getTarget().getId()));
                 clonedEdge.copyAttributesFrom(edge);
             }
-            for(Edge edge : node.getIncomingEdges()){
-                Edge clonedEdge = clonedNode.addEdgeTo(graph.getOrAddNode(edge.getSource().getId()));
-                clonedEdge.copyAttributesFrom(edge);
-            }
+//            for(Edge edge : node.getIncomingEdges()){
+//                Edge clonedEdge = clonedNode.addEdgeTo(graph.getOrAddNode(edge.getSource().getId()));
+//                clonedEdge.copyAttributesFrom(edge);
+//            }
         }
 
         return graph;
