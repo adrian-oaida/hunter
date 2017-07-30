@@ -24,3 +24,5 @@ TestPrograms/.idea
 TestPrograms/cmake-build-debug
 analyzer/.gradle
 analyzer/.idea
+analyzer/build
+analyzer/out
