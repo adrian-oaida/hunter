@@ -31,6 +31,12 @@ public class DirectedGraph implements Iterable<Node>{
         return maxNodeId;
     }
 
+    public Node getNode(Integer nodeId){
+        return nodeMap.get(nodeId);
+    }
+    public Node getNode(String nodeId){
+        return nodeMap.get(Integer.parseInt(nodeId));
+    }
     public Node getOrAddNode(String nodeId){
         return getOrAddNode(Integer.parseInt(nodeId));
     }

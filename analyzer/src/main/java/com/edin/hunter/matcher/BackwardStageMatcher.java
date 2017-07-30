@@ -4,38 +4,155 @@ import com.edin.hunter.graph.DirectedGraph;
 import com.edin.hunter.graph.Edge;
 import com.edin.hunter.graph.Node;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by dude on 7/12/17.
  */
 public class BackwardStageMatcher extends BaseMatcher {
+    private DirectedGraph staticCallGraph;
+    private DirectedGraph dynamicCallGraph;
+    public BackwardStageMatcher(DirectedGraph staticCallGraph, DirectedGraph dynamicCallGraph, DirectedGraph dataFlowGraph) {
+        super(dataFlowGraph);
+        this.staticCallGraph = staticCallGraph;
+        this.dynamicCallGraph = dynamicCallGraph;
 
-    public BackwardStageMatcher(DirectedGraph graph) {
-        super(graph);
+    }
 
+    public DirectedGraph getDynamicCallGraph() {
+        return dynamicCallGraph;
+    }
+
+    public DirectedGraph getStaticCallGraph() {
+        return staticCallGraph;
     }
 
     @Override
     public DirectedGraph detect() {
-//        removeSelfEdges();
-//        removeDuplicatedEdges();
-        mergeSISO();
-        markUpGraph();
+        markUpGraph(this.dataFlowGraph);
+        removeSelfEdges(dataFlowGraph);
+        removeDuplicatedEdges(dataFlowGraph);
+        mergeNeighbourCodeBlocks();
+//        mergeLinearSESE();
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        matchStage();
+//        matchStage();
 
         return null;
     }
 
-    private void mergeSISO() {
+    /*
+    * This aproach works only if the stage data flow paths are inside another block
+    * */
+    private void mergeNeighbourCodeBlocks(){
+        //first we make a ranking of the most popular static id's
+        //then we take the parent of the most popular and merge all children of the dynamic call graph in the dataflow graph
+        removeDuplicatedEdges(dynamicCallGraph);
+        removeDuplicatedEdges(staticCallGraph);
 
+        HashMap<Node, Integer> popularNodes = new HashMap<>();
+
+        for(Node node : dataFlowGraph){
+            if(node.getAttribute("staticNodeId") != null){
+                Node staticNode = staticCallGraph.getNode(node.getAttribute("staticNodeId"));
+                if(popularNodes.containsKey(staticNode)){
+                    popularNodes.put(staticNode, popularNodes.get(staticNode) + 1);
+                }else{
+                    popularNodes.put(staticNode, 1);
+                }
+            }
+        }
+        Node maxNode = null;
+        int maxValue = 0;
+        for(Map.Entry<Node, Integer> entry : popularNodes.entrySet()){
+            if(entry.getValue() > maxValue){
+                maxNode = entry.getKey();
+                maxValue = entry.getValue();
+            }
+        }
+        popularNodes.remove(maxNode);
+
+        int i = 4;
+        if(maxNode.getInDegree() == 1){
+            //has only 1 parent
+            Node parentNode = maxNode.getIncomingEdges().get(0).getSource();
+            for(Node dynamicNode : parentNode.getAssociatedNodes()){
+                List<Node> nodesToMerge = new ArrayList<>();
+
+                for(Edge outgoingEdge : dynamicNode.getOutgoingEdges()){
+                        nodesToMerge.add(dataFlowGraph.getNode(outgoingEdge.getTarget().getId())) ;
+                }
+
+                for(Node nodeM : nodesToMerge){
+                    nodeM.setAttribute("color", colorArray[i]);
+                }
+                i++;
+            }
+        }
+        System.out.printf("found %d regions \n", i);
+
+    }
+    private void mergeLinearSESE() {
+        boolean[] visited = new boolean[this.dataFlowGraph.getMaxNodeId() + 1];
+        List<Node> sisoNodes = new ArrayList<>();
+        for(Node node : dataFlowGraph){
+            if(node.getOutDegree() == 1 && node.getInDegree() == 1){
+                //we have a posible siso
+                sisoNodes.add(node);
+            }
+        }
+        List<Set<Node>> regionsList = new ArrayList<>();
+        for(Node node : sisoNodes){
+            if(!visited[node.getId()]){
+                Set<Node> region = new HashSet<>();
+                Node tmp = node;
+                while(tmp.getOutDegree() == 1 && tmp.getInDegree() == 1 && !visited[tmp.getId()]){
+                    region.add(tmp);
+                    visited[tmp.getId()] = true;
+                    tmp = tmp.getOutgoingEdges().get(0).getTarget();
+
+                }
+                tmp = node;
+                while(tmp.getOutDegree() == 1 && tmp.getInDegree() == 1 && !visited[tmp.getId()]){
+                    region.add(tmp);
+                    visited[tmp.getId()] = true;
+                    tmp = tmp.getIncomingEdges().get(0).getSource();
+                }
+                regionsList.add(region);
+                //run to forward nodes
+                //run to backward nodes
+            }
+        }
+        //in this stage we have to order the region
+        //but first we will just colour it
+        int color = 0;
+        System.out.printf("got %d regions \n", regionsList.size());
+        //get the first and last node, and create an edge between the parent and child of the region
+
+        for(Set<Node> region : regionsList){
+            Node parent = null, child = null;
+            for(Node node : region){
+                if(!region.contains(node.getIncomingEdges().get(0).getSource())){
+                    parent = node.getIncomingEdges().get(0).getSource();
+                }
+                if(!region.contains(node.getOutgoingEdges().get(0).getTarget())){
+                    child = node.getOutgoingEdges().get(0).getTarget();
+                }
+                node.setAttribute("color", colorArray[color]);
+            }
+
+            if(parent != null && child != null){
+                for(Node node: region){
+                    dataFlowGraph.removeNode(node);
+                }
+                Edge edge = parent.addEdgeTo(child);
+                edge.setAttribute("color", colorArray[color]);
+            }
+            color++;
+        }
     }
 
     private void matchStage(){
