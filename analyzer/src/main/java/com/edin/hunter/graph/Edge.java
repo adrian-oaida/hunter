@@ -14,6 +14,7 @@ public class Edge {
 
     private int id;
     private Map<String, String> attributes = new HashMap<>();
+    private DirectedGraph region;
 
 
     public Edge(Node source, Node target){
@@ -81,7 +82,7 @@ public class Edge {
         for(Map.Entry<String, String> attribute : attributes.entrySet()){
             sb.append(",");
             sb.append("\"").append(attribute.getKey()).append("\": ");
-            sb.append("\"").append(attribute.getValue()).append("\"");
+            sb.append("\"").append(attribute.getValue().replace(" ", "").replace("\\","").replace("\"", "'")).append("\"");
         }
         sb.append("}");
 

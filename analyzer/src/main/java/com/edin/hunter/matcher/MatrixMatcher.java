@@ -18,13 +18,13 @@ public class MatrixMatcher extends BaseMatcher {
     @Override
     public DirectedGraph detect() {
 
-        removeSelfEdges();
-        removeDuplicatedEdges();
-        markUpGraph();
+        removeSelfEdges(dataFlowGraph);
+        removeDuplicatedEdges(dataFlowGraph);
+        markUpGraph(dataFlowGraph);
 
         detectLatice();
 
-        return graph;
+        return dataFlowGraph;
 
     }
 
@@ -34,9 +34,9 @@ public class MatrixMatcher extends BaseMatcher {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        Node[][] matrix = new Node[graph.getNodeCount()][graph.getNodeCount()];
+        Node[][] matrix = new Node[dataFlowGraph.getNodeCount()][dataFlowGraph.getNodeCount()];
 
-        boolean[] visited = new boolean[graph.getMaxNodeId() + 1];
+        boolean[] visited = new boolean[dataFlowGraph.getMaxNodeId() + 1];
 
         matrix[0][0] = startNodes.get(0);
         if(populateMatrix(matrix, startNodes.get(0), 0, 0)){

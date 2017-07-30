@@ -12,22 +12,40 @@ import java.util.*;
  * Created by dude on 6/25/17.
  */
 public abstract class BaseMatcher {
-    protected DirectedGraph graph;
+    protected DirectedGraph dataFlowGraph;
     protected List<Node> startNodes;
     protected List<Node> finishNodes;
-    private String[] colorArray = new String[]{"blue", "blueviolet", "brown", "burlywood", "cadetblue", "Chartreuse", "Chocolate", "Coral", "CornflowerBlue", "Crimson", "Cyan", "DarkBlue", "DarkCyan", "DarkGoldenRod", "DarkGreen", "DarkMagenta", "DarkSalmon", "DarkSlateBlue","DarkTurquoise"};
+    protected String[] colorArray;
     /*
     * @param graph a dataflow graph
     *
     * */
-    public BaseMatcher(DirectedGraph graph){
-        this.graph = graph;
-        markUpGraph();
+    public BaseMatcher(DirectedGraph dataFlowGraph){
+        //generate colours
+//        colorArray = new String[8 * 8 * 8];
+//        for(int i = 0; i < 8; i++){
+//            for(int j = 0; j < 8; j++){
+//                for(int k = 0; k < 8; k++){
+//                    colorArray[i*64 + j*8 + k] = String.format("rgb(%d, %d, %d)", (i*32), (j*32), (k*32));
+//                }
+//            }
+//        }
+
+        colorArray = new String[4 * 4 * 4];
+        for(int i = 0; i < 4; i++){
+            for(int j = 0; j < 4; j++){
+                for(int k = 0; k < 4; k++){
+                    colorArray[i*16 + j*4 + k] = String.format("rgb(%d, %d, %d)", (i*64), (j*64), (k*64));
+                }
+            }
+        }
+
+        this.dataFlowGraph = dataFlowGraph;
     }
-    public DirectedGraph getGraph(){
+    public DirectedGraph getDataFlowGraph(){
 
 
-        return graph;
+        return dataFlowGraph;
     }
     /*
     *This returns a new graph based on the existent graph but with pipeline stage and latices highlighted
@@ -43,7 +61,7 @@ public abstract class BaseMatcher {
     /*
     * This method modified the graph by removing edges that point to their originating node (source = target)
     * */
-    protected void removeSelfEdges(){
+    protected void removeSelfEdges(DirectedGraph graph){
         for(Node node : graph){
             List<Edge> selfEdges = node.getEdgesTowards(node);
             for(Edge edge : selfEdges){
@@ -55,7 +73,7 @@ public abstract class BaseMatcher {
     * <p>
     *     This method modifies the graph by removing duplicated edges leaving.
     * */
-    protected void removeDuplicatedEdges(){
+    protected void removeDuplicatedEdges(DirectedGraph graph){
         for(Node node : graph){
             for(Node neighNode : node.getNeighbouringNodes()){
                 List<Edge> edges = node.getEdgesTowards(neighNode);
@@ -68,11 +86,11 @@ public abstract class BaseMatcher {
         }
 
     }
-    protected void markUpGraph(){
+    protected void markUpGraph(DirectedGraph graph){
         startNodes = new ArrayList<>();
         finishNodes = new ArrayList<>();
         for(Node n : graph) {
-            n.setAttribute("color", colorArray[Integer.parseInt(n.getAttribute("staticId"))]);
+            //n.setAttribute("color", colorArray[Integer.parseInt(n.getAttribute("staticId"))]);
             if (n.getInDegree() == 0) {
                 startNodes.add(n);
                 System.out.println("start " + n);

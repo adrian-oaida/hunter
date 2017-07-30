@@ -20,9 +20,21 @@ public class Node {
     private List<Node> neighbouringNodes = new ArrayList<>();
     private Map<String, String> attributes = new HashMap<>();
 
+    private List<Node> associatedNodes = new ArrayList<>();
+
+    public List<Node> getAssociatedNodes(){
+        return associatedNodes;
+    }
+
+    public void associateWithNode(Node node){
+        if(!associatedNodes.contains(node)){
+            associatedNodes.add(node);
+        }
+    }
     protected Node(int id, DirectedGraph graph){
         this.id = id;
         this.graph = graph;
+        this.attributes.put("color", "blue");
     }
 
     public Map<String, String> getAttributeMap(){
@@ -156,7 +168,7 @@ public class Node {
         for(Map.Entry<String, String> attribute : attributes.entrySet()){
             sb.append(",");
             sb.append("\"").append(attribute.getKey()).append("\": ");
-            sb.append("\"").append(attribute.getValue().replace(" ", "")).append("\"");
+            sb.append("\"").append(attribute.getValue().replace(" ", "").replace("\\","").replace("\"", "'")).append("\"");
         }
         sb.append("}");
         return sb.toString();

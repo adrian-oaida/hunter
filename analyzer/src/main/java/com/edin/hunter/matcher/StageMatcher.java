@@ -19,7 +19,7 @@ public class StageMatcher extends BaseMatcher {
 
     private void matchStage(){
         List<Node> cornerNodes = new ArrayList<>();
-        for(Node node : graph){
+        for(Node node : dataFlowGraph){
 
             if(node.getOutDegree() == node.getInDegree()){
                 if(node.getOutDegree() == 1){
@@ -48,7 +48,7 @@ public class StageMatcher extends BaseMatcher {
     //then we replace the path and go around again until we find no more
     //then we test the resulting structure, and if it has the shape of a lattice we return true
     private boolean matchPipeline(List<Node> stage){
-        boolean visited[] = new boolean[graph.getMaxNodeId() + 1];
+        boolean visited[] = new boolean[dataFlowGraph.getMaxNodeId() + 1];
         for(Node node : stage){
             visited[node.getId()] = true;
         }
@@ -96,7 +96,7 @@ public class StageMatcher extends BaseMatcher {
 
     private List<Node> shortestPath(Node x, Node y){
         List<Edge> path = new ArrayList<>();
-        boolean [] visited = new boolean[graph.getMaxNodeId() + 1];
+        boolean [] visited = new boolean[dataFlowGraph.getMaxNodeId() + 1];
 
         outgoingDFS(x, visited, y, path);
         Collections.reverse(path);
@@ -117,9 +117,9 @@ public class StageMatcher extends BaseMatcher {
 
     @Override
     public DirectedGraph detect() {
-        removeSelfEdges();
-        removeDuplicatedEdges();
-        markUpGraph();
+        removeSelfEdges(this.dataFlowGraph);
+        removeDuplicatedEdges(this.dataFlowGraph);
+        markUpGraph(this.dataFlowGraph);
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {

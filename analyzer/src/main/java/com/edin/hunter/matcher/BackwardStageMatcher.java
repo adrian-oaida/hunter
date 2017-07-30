@@ -56,7 +56,7 @@ public class BackwardStageMatcher extends BaseMatcher {
         List<Node> centerNodes = new ArrayList<>();
         List<Node> otherTypes = new ArrayList<>();
 
-        for(Node node : graph){
+        for(Node node : dataFlowGraph){
 
             if(node.getOutDegree() == node.getInDegree()){
                 if(node.getOutDegree() == 1){
@@ -112,7 +112,7 @@ public class BackwardStageMatcher extends BaseMatcher {
     }
     public List<List<Node>> matchPipeline(List<Node> stage){
         List<List<Node>> pipeline = new ArrayList<>();
-        boolean visited[] = new boolean[graph.getMaxNodeId() + 1];
+        boolean visited[] = new boolean[dataFlowGraph.getMaxNodeId() + 1];
         for(Node node : stage){
             visited[node.getId()] = true;
         }
@@ -152,7 +152,7 @@ public class BackwardStageMatcher extends BaseMatcher {
         return pipeline;
     }
     private List<Node> shortestPath(Node x, Node y){
-        boolean[] visited = new boolean[graph.getMaxNodeId() + 1];
+        boolean[] visited = new boolean[dataFlowGraph.getMaxNodeId() + 1];
         List<Edge> path = new ArrayList<>();
         incomingDFS(x, visited, y, path);
         Collections.reverse(path);
