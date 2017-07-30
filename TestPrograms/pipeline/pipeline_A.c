@@ -10,8 +10,6 @@
 #include<pthread.h>
 #include "../tools/tools.h"
 
-#define MAX_DATA 10000
-#define MAX_WORKERS 50
 
 #define init_int_data(array,size) bzero(array, size * sizeof(int))
 
@@ -44,7 +42,7 @@ int main(int argc, char *argv[]){
     data = (int*)malloc(data_size * sizeof(int));
     worker_ids = (pthread_t *)malloc(num_workers * sizeof(pthread_t));
 
-    shadow_data = get_trace_array(MAX_DATA);
+    shadow_data = get_trace_array(data_size);
 
     //creating the workers and putting them to work
     for(i = 0; i < num_workers; i++){
@@ -116,7 +114,6 @@ void *worker(void *arg){
     }
     exit_block(worker_id);
     exit_block(worker_id);
-
     for(int i = 0; i < (num_workers - worker_id -1); i++){
         //wait for other workers to catch up to end the stage
         wait_for_barrier();

@@ -10,9 +10,6 @@
 #include<pthread.h>
 #include "../tools/tools.h"
 
-#define MAX_DATA 10000
-#define MAX_WORKERS 50
-
 
 void *worker(void *arg1);
 
