@@ -45,6 +45,45 @@ public class BackwardStageMatcher extends BaseMatcher {
     }
 
     /*
+    * This method computes the maximum number of sub graphs that are identical in structure
+    * this will fail for a data flow graph that has two different types of stages
+    * */
+    private void buildForestOfStages(){
+
+        int[] forest = new int[dataFlowGraph.getMaxNodeId() + 1];
+        //min forest size
+        int forestMaxSize = 3;
+        int[] forestSize = new int[dataFlowGraph.getMaxNodeId() + 1];
+        Deque<Node> queue = new ArrayDeque<>();
+
+        for(Node node : dataFlowGraph){
+            if(forest[node.getId()] == 0){
+                forestSize[node.getId()] = 1;
+                forest[node.getId()] = node.getId();
+                for(Node neigh : node.getNeighbouringNodes()){
+                    if(forest[neigh.getId()] == 0 && forestSize[node.getId()] < forestMaxSize){
+                        forest[neigh.getId()] = node.getId();
+                        forestSize[node.getId()]++;
+                    }
+                }
+            }
+        }
+        int colourCount = 0;
+        for(int i = 0 ; i < forestSize.length; i++){
+            if(forestSize[i] != 0){
+                dataFlowGraph.getNode(i).setAttribute("color", colorArray[colourCount]);
+                for(Node neigh : dataFlowGraph.getNode(i).getNeighbouringNodes()){
+                    if(forest[neigh.getId()] == i){
+                        neigh.setAttribute("color", colorArray[colourCount]);
+                    }
+                }
+                colourCount++;
+            }
+        }
+
+    }
+
+    /*
     * This aproach works only if the stage data flow paths are inside another block
     * */
     private void mergeNeighbourCodeBlocks(){
