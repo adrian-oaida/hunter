@@ -32,8 +32,14 @@ public class BackwardStageMatcher extends BaseMatcher {
         markUpGraph(this.dataFlowGraph);
         removeSelfEdges(dataFlowGraph);
         removeDuplicatedEdges(dataFlowGraph);
-        mergeNeighbourCodeBlocks();
 //        mergeLinearSESE();
+//        buildForestOfStages();
+        mergeNeighbourCodeBlocks();
+        removeDuplicatedEdges(dataFlowGraph);
+
+        mergeLinearSESE();
+        markUpGraph(this.dataFlowGraph);
+
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
@@ -114,7 +120,9 @@ public class BackwardStageMatcher extends BaseMatcher {
         }
         popularNodes.remove(maxNode);
 
-        int i = 4;
+        int forestId = 1;
+        int[] forest = new int[dataFlowGraph.getMaxNodeId() + 1];
+
         if(maxNode.getInDegree() == 1){
             //has only 1 parent
             Node parentNode = maxNode.getIncomingEdges().get(0).getSource();
@@ -123,15 +131,100 @@ public class BackwardStageMatcher extends BaseMatcher {
 
                 for(Edge outgoingEdge : dynamicNode.getOutgoingEdges()){
                         nodesToMerge.add(dataFlowGraph.getNode(outgoingEdge.getTarget().getId())) ;
+                    forest[outgoingEdge.getTarget().getId()] = forestId;
                 }
+                List<Node> entryNodes = new ArrayList<>();
+                List<Node> exitNodes = new ArrayList<>();
+                //split the region into regions based on exit nodes
 
                 for(Node nodeM : nodesToMerge){
-                    nodeM.setAttribute("color", colorArray[i]);
+                    boolean posibleExitNode = true;
+                    for(Edge outgoingEdge : nodeM.getOutgoingEdges()){
+                        if(forest[outgoingEdge.getTarget().getId()] == forestId){
+                            posibleExitNode = false; break;
+                        }
+                    }
+                    if(posibleExitNode){
+                        exitNodes.add(nodeM);
+                    }
                 }
-                i++;
+
+
+                Map<Integer, Deque<Node>> forestDeque = new HashMap<>();
+                for(int i = 0; i < exitNodes.size(); i++){
+                    Deque<Node> deque = new ArrayDeque<>();
+                    deque.add(exitNodes.get(i));
+                    forest[exitNodes.get(i).getId()] = forestId + i + 1;
+                    forestDeque.put(forestId + i + 1, deque);
+                }
+                while(forestDeque.size() != 0){
+                    Iterator<Map.Entry<Integer, Deque<Node>>> it = forestDeque.entrySet().iterator();
+                    while(it.hasNext()){
+                        Map.Entry<Integer, Deque<Node>> entry = it.next();
+                        Node node = entry.getValue().poll();
+                        for(Edge edge : node.getIncomingEdges()){
+                            //it wasn't assigned yet to a subforest
+                            if(forest[edge.getSource().getId()] == forestId){
+                                forest[edge.getSource().getId()] = forest[node.getId()];
+                                entry.getValue().add(edge.getSource());
+                            }
+                        }
+                        if(entry.getValue().isEmpty()){
+                            it.remove();
+//                            forestDeque.remove(entry.getKey());
+                        }
+                    }
+                }
+                for(Node node : exitNodes){
+                    Deque<Node> exitDeque = new ArrayDeque<>();
+                    exitDeque.add(node);
+                    List<Node> treeNodes = new ArrayList<>();
+                    while(!exitDeque.isEmpty()){
+                        Node currentNode = exitDeque.poll();
+
+                        for(Edge incomingEdge : currentNode.getIncomingEdges()){
+                            //part of the same sub tree
+                            if(forest[node.getId()] == forest[incomingEdge.getSource().getId()]){
+                                treeNodes.add(incomingEdge.getSource());
+                                exitDeque.add(incomingEdge.getSource());
+                            }else{
+                                //add edge from incoming
+//                                incomingEdge.getSource().addEdgeTo(node);
+                                if(currentNode != node){
+                                    incomingEdge.getTarget().addEdgeTo(node);
+                                    treeNodes.remove(incomingEdge.getTarget());
+                                }
+                            }
+                        }
+
+//                        if(currentNode != node)
+//                            for(Edge outgoingEdge : currentNode.getOutgoingEdges()){
+//                                if(forest[node.getId()] == forest[outgoingEdge.getTarget().getId()]){
+//                                    if(!treeNodes.contains(outgoingEdge.getTarget())){
+//                                        treeNodes.add(outgoingEdge.getTarget());
+//                                        exitDeque.add(outgoingEdge.getTarget());
+//                                    }
+//                                }else{
+////                                    treeNodes.add(outgoingEdge.getSource());
+////                                    node.addEdgeTo(outgoingEdge.getTarget());
+//
+//                                }
+//                            }
+                    }
+                    treeNodes.remove(node);
+                    for(Node treeNode : treeNodes){
+                        dataFlowGraph.removeNode(treeNode);
+                    }
+                }
+                forestId+=exitNodes.size() + 1;
             }
         }
-        System.out.printf("found %d regions \n", i);
+//        for(int i = 0; i < forest.length; i++){
+//            if(forest[i] != 0){
+//                dataFlowGraph.getNode(i).setAttribute("color", colorArray[forest[i]]);
+//            }
+//        }
+        System.out.printf("found %d regions \n", forestId);
 
     }
     private void mergeLinearSESE() {
