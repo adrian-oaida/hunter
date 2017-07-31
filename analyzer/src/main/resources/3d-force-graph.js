@@ -3927,7 +3927,7 @@ Matrix4.prototype = {
 
 			} else {
 
-				console.warn( msg );
+				//console.warn( msg );
 
 			}
 
@@ -8546,7 +8546,7 @@ Matrix3.prototype = {
 
 			} else {
 
-				console.warn( msg );
+				//console.warn( msg );
 
 			}
 
@@ -50384,6 +50384,7 @@ var _3dForceGraph = createComponent({
 						x: ev.pageX - offset.left,
 						y: ev.pageY - offset.top
 					};
+					console.log(offset);
 				mousePos.x = (relPos.x / state.width) * 2 - 1;
 				mousePos.y = -(relPos.y / state.height) * 2 + 1;
 
