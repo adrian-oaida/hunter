@@ -36,8 +36,8 @@ public class BackwardStageMatcher extends BaseMatcher {
 //        buildForestOfStages();
         mergeNeighbourCodeBlocks();
         removeDuplicatedEdges(dataFlowGraph);
-
-        mergeLinearSESE();
+        removeSelfEdges(dataFlowGraph);
+//        mergeLinearSESE();
         markUpGraph(this.dataFlowGraph);
 
         try {
@@ -139,13 +139,16 @@ public class BackwardStageMatcher extends BaseMatcher {
 
                 for(Node nodeM : nodesToMerge){
                     boolean posibleExitNode = true;
-                    for(Edge outgoingEdge : nodeM.getOutgoingEdges()){
-                        if(forest[outgoingEdge.getTarget().getId()] == forestId){
-                            posibleExitNode = false; break;
+                    if(nodeM != null){
+                        for(Edge outgoingEdge : nodeM.getOutgoingEdges()){
+                            if(forest[outgoingEdge.getTarget().getId()] == forestId){
+                                posibleExitNode = false; break;
+                            }
                         }
-                    }
-                    if(posibleExitNode){
-                        exitNodes.add(nodeM);
+                        if(posibleExitNode){
+                            exitNodes.add(nodeM);
+                        }
+
                     }
                 }
 
@@ -179,6 +182,7 @@ public class BackwardStageMatcher extends BaseMatcher {
                     Deque<Node> exitDeque = new ArrayDeque<>();
                     exitDeque.add(node);
                     List<Node> treeNodes = new ArrayList<>();
+                    treeNodes.add(node);
                     while(!exitDeque.isEmpty()){
                         Node currentNode = exitDeque.poll();
 
@@ -191,36 +195,36 @@ public class BackwardStageMatcher extends BaseMatcher {
                                 //add edge from incoming
 //                                incomingEdge.getSource().addEdgeTo(node);
                                 if(currentNode != node){
-                                    incomingEdge.getTarget().addEdgeTo(node);
-                                    treeNodes.remove(incomingEdge.getTarget());
+//                                    incomingEdge.getTarget().addEdgeTo(node);
+//                                    treeNodes.remove(incomingEdge.getTarget());
                                 }
                             }
                         }
 
-//                        if(currentNode != node)
-//                            for(Edge outgoingEdge : currentNode.getOutgoingEdges()){
-//                                if(forest[node.getId()] == forest[outgoingEdge.getTarget().getId()]){
-//                                    if(!treeNodes.contains(outgoingEdge.getTarget())){
-//                                        treeNodes.add(outgoingEdge.getTarget());
-//                                        exitDeque.add(outgoingEdge.getTarget());
-//                                    }
-//                                }else{
-////                                    treeNodes.add(outgoingEdge.getSource());
-////                                    node.addEdgeTo(outgoingEdge.getTarget());
-//
-//                                }
-//                            }
                     }
                     treeNodes.remove(node);
-                    for(Node treeNode : treeNodes){
-                        dataFlowGraph.removeNode(treeNode);
+                    for(Node twig : treeNodes){
+                        //iterate through outgoing and incoming
+                        for(Edge incomingEdge : twig.getIncomingEdges()){
+                            incomingEdge.getSource().addEdgeTo(node);
+                        }
+                        for(Edge outgoingEdge : twig.getOutgoingEdges()){
+                            node.addEdgeTo(outgoingEdge.getTarget());
+                        }
                     }
+                    for(Node twig : treeNodes){
+                        dataFlowGraph.removeNode(twig);
+                    }
+//                    for(Node treeNode : treeNodes){
+//                        dataFlowGraph.removeNode(treeNode);
+//                    }
                 }
                 forestId+=exitNodes.size() + 1;
             }
         }
 //        for(int i = 0; i < forest.length; i++){
 //            if(forest[i] != 0){
+//                dataFlowGraph.getNode(i).setAttribute("forestId", "" + forest[i]);
 //                dataFlowGraph.getNode(i).setAttribute("color", colorArray[forest[i]]);
 //            }
 //        }
@@ -273,7 +277,7 @@ public class BackwardStageMatcher extends BaseMatcher {
                 if(!region.contains(node.getOutgoingEdges().get(0).getTarget())){
                     child = node.getOutgoingEdges().get(0).getTarget();
                 }
-                node.setAttribute("color", colorArray[color]);
+//                node.setAttribute("color", colorArray[color]);
             }
 
             if(parent != null && child != null){
@@ -281,7 +285,7 @@ public class BackwardStageMatcher extends BaseMatcher {
                     dataFlowGraph.removeNode(node);
                 }
                 Edge edge = parent.addEdgeTo(child);
-                edge.setAttribute("color", colorArray[color]);
+//                edge.setAttribute("color", colorArray[color]);
             }
             color++;
         }
