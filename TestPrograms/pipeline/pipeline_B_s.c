@@ -82,19 +82,17 @@ void *worker(void *arg){
 
     basic_block_id = enter_block(2, worker_id, "for(int i = 0; i < data_size; i++)");
     for(int i = 0; i < data_size; i++){
-        basic_block_id = enter_block(3, worker_id, "worker_state = worker_state + 1");
+        basic_block_id = enter_block(3, worker_id, "worker_state = worker_state + 1 \\n temp = data[i] \\n data[i] = 1 + worker_state + temp");
 
         worker_state = worker_state + 1;
 
         data_flow_trace(shadow_worker_state, basic_block_id, worker_id);
         shadow_worker_state = basic_block_id;
 
-
         temp = data[i];
 
         data_flow_trace(shadow_data[i], basic_block_id, worker_id);
         shadow_temp = basic_block_id;
-
 
         data[i] = 1 + worker_state + temp;
 

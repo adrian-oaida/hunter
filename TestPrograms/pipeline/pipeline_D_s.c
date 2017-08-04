@@ -93,24 +93,31 @@ void *worker(void *arg){
 
         shadow_worker_state = basic_block_id;
 
+        exit_block(worker_id);
 
         //iterate over something while we are using data[i]
         //and make a decision with previous state
+        basic_block_id = enter_block(4, worker_id, "tmp = data[i]");
 
         tmp = worker_state;
 
         data_flow_trace(shadow_worker_state, basic_block_id, worker_id);
         shadow_tmp = basic_block_id;
+        exit_block(worker_id);
 
         for(int j = 0; j < 5; j++){
+            basic_block_id = enter_block(5, worker_id, "tmp = tmp * 5");
 
             tmp = tmp * 5;
 
             data_flow_trace(shadow_tmp, basic_block_id, worker_id);
             shadow_tmp = basic_block_id;
 
+            exit_block(worker_id);
+
         }
 
+        basic_block_id = enter_block(6, worker_id, "data[i] = tmp");
 
         data[i] = tmp;
 

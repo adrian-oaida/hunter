@@ -89,7 +89,7 @@ void *worker(void *arg){
     basic_block_id = enter_block(2, worker_id,"for(int i = 0; i < data_size; i++)");
     for(int i = 0; i < data_size; i++){
 
-        basic_block_id = enter_block(3, worker_id,"worker_state = worker_state + 1");
+        basic_block_id = enter_block(3, worker_id,"worker_state = worker_state + 1 \\n data[i] = data[i] + worker_id");
 
         worker_state = worker_state + 1;
 
