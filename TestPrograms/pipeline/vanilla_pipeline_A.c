@@ -81,20 +81,9 @@ void *worker(void *arg){
     }
 
     for(int i = 0; i < data_size; i++){
-
-
         worker_state = worker_state + 1;
-
-
-
-
-
         data[i] = data[i] + worker_id;
-
-
-
         //wait for other workers to catch up
-
         wait_for_barrier();
     }
 
