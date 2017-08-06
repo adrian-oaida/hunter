@@ -38,35 +38,7 @@ public class RemoteGraphViewer {
         }
 
     }
-    public void showPageInBrowser(){
-        List<String> command = new ArrayList<>();
-        command.add("clang");
 
-
-        ProcessBuilder pb = new ProcessBuilder(command);
-        System.out.println(pb.command());
-        String astString = null;
-        try {
-
-            Process p = pb.start();
-            BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(p.getInputStream()));
-            StringBuilder builder = new StringBuilder();
-            String line = null;
-            while ( (line = reader.readLine()) != null) {
-                builder.append(line);
-                builder.append(System.getProperty("line.separator"));
-            }
-            astString = builder.toString();
-            p.waitFor();
-            System.out.println(p.exitValue());
-        } catch (IOException e) {
-
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
     public void stopServer(){
         if(server != null){
             server.stop(0);
