@@ -12,7 +12,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static com.edin.hunter.graph.DirectedGraph.*;
 
 /**
  * Created by dude on 6/16/17.
@@ -103,12 +104,12 @@ public class CRunner extends BaseRunner {
                     String[] args = line.replace("BC", "").trim().split("\\|");
 
                     Node dynamicFromNode = dynamicCallGraph.getOrAddNode(args[0]);
-                    dynamicFromNode.setAttribute("staticId", args[1]);
+                    dynamicFromNode.setAttribute(ATTR_STATIC_ID, args[1]);
 
                     Node dynamicToNode = dynamicCallGraph.getOrAddNode(args[2]);
 
-                    dynamicToNode.setAttribute("instruction", String.format("\"%s\"", args[4]));
-                    dynamicToNode.setAttribute("staticId", args[3]);
+
+                    dynamicToNode.setAttribute(ATTR_STATIC_ID, args[3]);
 
                     Edge dynamicEdge = dynamicFromNode.addEdgeTo(dynamicToNode);
 //                    dynamicEdge.setAttribute("staticFromTo", args[1] + " -> " + args[3]);
@@ -116,25 +117,42 @@ public class CRunner extends BaseRunner {
                     Node staticFromNode = staticCallGraph.getOrAddNode(args[1]);
                     Node staticToNode  = staticCallGraph.getOrAddNode(args[3]);
 
-                    staticToNode.setAttribute("instruction", String.format("\"%s\"", args[4]));
                     staticToNode.associateWithNode(dynamicToNode);
                     dynamicToNode.associateWithNode(staticToNode);
 
                     Edge staticEdge = staticFromNode.addEdgeTo(staticToNode);
+
+                    if(instructionsAsLabels){
+                        dynamicToNode.setAttribute(ATTR_LABEL, String.format("\"%s\"", args[4]));
+                        staticToNode.setAttribute(ATTR_LABEL, String.format("\"%s\"", args[4]));
+                    }else{
+                        dynamicToNode.setAttribute(ATTR_INSTRUCTION, String.format("\"%s\"", args[4]));
+                        staticToNode.setAttribute(ATTR_INSTRUCTION, String.format("\"%s\"", args[4]));
+                    }
 //                    staticEdge.setAttribute("dynamicFromTo", args[0] + " -> " + args[2]);
 
 
                 }
-                //TODO add data flow attribute of containing basic block
+
                 if(line.startsWith("DF")){
                     String[] args = line.replace("DF", "").trim().split("\\|");
 
                     Node fromNode = dataFlowGraph.getOrAddNode(Integer.parseInt(args[0]));
 
                     Node toNode   = dataFlowGraph.getOrAddNode(Integer.parseInt(args[1]));
-                    toNode.copyAttributesFrom(dynamicCallGraph.getOrAddNode(toNode.getId()));
-                    toNode.setAttribute("staticNodeId", args[2]);
+                    toNode.setAttribute(DirectedGraph.ATTR_STATIC_ID, args[2]);
+
                     fromNode.addEdgeTo(toNode);
+
+                    if(instructionsAsLabels){
+                        fromNode.setAttribute(ATTR_SHAPE, "box");
+                        toNode.setAttribute(ATTR_SHAPE, "box");
+                    }
+                    if(augmentDataFlowNodes){
+                        fromNode.copyAttributesFrom(dynamicCallGraph.getOrAddNode(fromNode.getId()));
+                        toNode.copyAttributesFrom(dynamicCallGraph.getOrAddNode(toNode.getId()));
+
+                    }
                 }
             }
 

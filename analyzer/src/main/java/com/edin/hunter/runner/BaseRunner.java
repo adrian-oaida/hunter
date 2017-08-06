@@ -11,6 +11,9 @@ public abstract class BaseRunner {
     protected DirectedGraph dynamicCallGraph;
     protected DirectedGraph staticCallGraph;
 
+    protected boolean instructionsAsLabels = false;
+    protected boolean augmentDataFlowNodes = false;
+
 
     public abstract void run(String ...programArgs);
 
@@ -22,6 +25,12 @@ public abstract class BaseRunner {
     }
     public DirectedGraph getStaticCallGraph(){
         return staticCallGraph;
+    }
+    public void setInstructionsAsLabes(boolean instr){
+        this.instructionsAsLabels = instr;
+    }
+    public void augmentDataFlowNodes(boolean instr){
+        this.augmentDataFlowNodes = instr;
     }
 
 }
