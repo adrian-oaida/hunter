@@ -8,6 +8,9 @@ import com.edin.hunter.graph.Node;
 
 import java.util.*;
 
+import static com.edin.hunter.graph.DirectedGraph.ATTR_COLOR;
+import static com.edin.hunter.graph.DirectedGraph.ATTR_SHAPE;
+
 /**
  * Created by dude on 6/25/17.
  */
@@ -35,7 +38,7 @@ public abstract class BaseMatcher {
         for(int i = 0; i < 4; i++){
             for(int j = 0; j < 4; j++){
                 for(int k = 0; k < 4; k++){
-                    colorArray[i*16 + j*4 + k] = String.format("rgb(%d, %d, %d)", (i*64), (j*64), (k*64));
+                    colorArray[i*16 + j*4 + k] = String.format("rgb(%d, %d, %d)", (i*64), (k*64), (j*64));
                 }
             }
         }
@@ -94,14 +97,14 @@ public abstract class BaseMatcher {
             if (n.getInDegree() == 0) {
                 startNodes.add(n);
                 System.out.println("start " + n);
-                n.setAttribute("shape", "box");
-                n.setAttribute("color", "red");
+                n.setAttribute(ATTR_SHAPE, "box");
+                n.setAttribute(ATTR_COLOR, "red");
             }
             if (n.getOutDegree() == 0) {
                 finishNodes.add(n);
                 System.out.println("finish " + n);
-                n.setAttribute("shape", "box");
-                n.setAttribute("color", "black");
+                n.setAttribute(ATTR_SHAPE, "box");
+                n.setAttribute(ATTR_COLOR, "black");
             }
 //            if (!n.getEdgesTowards(n).isEmpty()) {
 //                if (n.getInDegree() - 1 == 0) {

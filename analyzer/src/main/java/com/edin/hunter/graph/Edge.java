@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import static com.edin.hunter.graph.DirectedGraph.ATTR_COLOR;
+
 /**
  * Created by dude on 7/6/17.
  */
@@ -21,7 +23,7 @@ public class Edge {
         this.id = EdgeIdGenerator.getNextId();
         this.source = source;
         this.target = target;
-        this.attributes.put("color", "black");
+        this.attributes.put(ATTR_COLOR, "black");
     }
 
     public Node getSource(){

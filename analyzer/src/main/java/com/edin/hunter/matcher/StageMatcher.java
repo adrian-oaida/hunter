@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.edin.hunter.graph.DirectedGraph.ATTR_COLOR;
+
 /**
  * Created by dude on 7/12/17.
  */
@@ -61,7 +63,7 @@ public class StageMatcher extends BaseMatcher {
                 for(Edge edge : node.getOutgoingEdges()){
                     if(!visited[edge.getTarget().getId()]){
                         visited[edge.getTarget().getId()] = true;
-                        edge.setAttribute("color", "red");
+                        edge.setAttribute(ATTR_COLOR, "red");
 //                        try {
 //                            Thread.sleep(500);
 //                        } catch (InterruptedException e) {
@@ -104,7 +106,7 @@ public class StageMatcher extends BaseMatcher {
         pathNodes.add(x);
         for(Edge edge : path){
             pathNodes.add(edge.getTarget());
-            edge.setAttribute("color", "red");
+            edge.setAttribute(ATTR_COLOR, "red");
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {

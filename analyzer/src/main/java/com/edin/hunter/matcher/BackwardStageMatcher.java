@@ -6,6 +6,9 @@ import com.edin.hunter.graph.Node;
 
 import java.util.*;
 
+import static com.edin.hunter.graph.DirectedGraph.ATTR_COLOR;
+import static com.edin.hunter.graph.DirectedGraph.ATTR_STATIC_ID;
+
 /**
  * Created by dude on 7/12/17.
  */
@@ -77,10 +80,10 @@ public class BackwardStageMatcher extends BaseMatcher {
         int colourCount = 0;
         for(int i = 0 ; i < forestSize.length; i++){
             if(forestSize[i] != 0){
-                dataFlowGraph.getNode(i).setAttribute("color", colorArray[colourCount]);
+                dataFlowGraph.getNode(i).setAttribute(ATTR_COLOR, colorArray[colourCount]);
                 for(Node neigh : dataFlowGraph.getNode(i).getNeighbouringNodes()){
                     if(forest[neigh.getId()] == i){
-                        neigh.setAttribute("color", colorArray[colourCount]);
+                        neigh.setAttribute(ATTR_COLOR, colorArray[colourCount]);
                     }
                 }
                 colourCount++;
@@ -101,8 +104,8 @@ public class BackwardStageMatcher extends BaseMatcher {
         HashMap<Node, Integer> popularNodes = new HashMap<>();
 
         for(Node node : dataFlowGraph){
-            if(node.getAttribute("staticNodeId") != null){
-                Node staticNode = staticCallGraph.getNode(node.getAttribute("staticNodeId"));
+            if(node.getAttribute(ATTR_STATIC_ID) != null){
+                Node staticNode = staticCallGraph.getNode(node.getAttribute(ATTR_STATIC_ID));
                 if(popularNodes.containsKey(staticNode)){
                     popularNodes.put(staticNode, popularNodes.get(staticNode) + 1);
                 }else{
@@ -203,6 +206,7 @@ public class BackwardStageMatcher extends BaseMatcher {
 
                     }
                     treeNodes.remove(node);
+                    node.setAttribute("instruction", parentNode.getAttribute("instruction"));
                     for(Node twig : treeNodes){
                         //iterate through outgoing and incoming
                         for(Edge incomingEdge : twig.getIncomingEdges()){
@@ -215,17 +219,20 @@ public class BackwardStageMatcher extends BaseMatcher {
                     for(Node twig : treeNodes){
                         dataFlowGraph.removeNode(twig);
                     }
-//                    for(Node treeNode : treeNodes){
-//                        dataFlowGraph.removeNode(treeNode);
-//                    }
                 }
                 forestId+=exitNodes.size() + 1;
             }
         }
+
 //        for(int i = 0; i < forest.length; i++){
 //            if(forest[i] != 0){
-//                dataFlowGraph.getNode(i).setAttribute("forestId", "" + forest[i]);
-//                dataFlowGraph.getNode(i).setAttribute("color", colorArray[forest[i]]);
+//                try{
+//                    dataFlowGraph.getNode(i).setAttribute("forestId", "" + forest[i]);
+//                    dataFlowGraph.getNode(i).setAttribute(ATTR_COLOR, colorArray[forest[i]]);
+//                }catch(NullPointerException e){
+//                    System.err.println("error on " + i + " node");
+//                    e.printStackTrace();
+//                }
 //            }
 //        }
         System.out.printf("found %d regions \n", forestId);
@@ -328,39 +335,32 @@ public class BackwardStageMatcher extends BaseMatcher {
         System.out.printf("corner %d\n", cornerNodes.size());
         System.out.printf("center %d\n", centerNodes.size());
         System.out.printf("other %d\n", otherTypes.size());
-//
-//        List<List<Node>> finalLattice = null;
-//        for(Node n : cornerNodes){
-//
-//            for(Node terminatorNode : finishNodes){
-//                System.out.printf("path from %d to %d \n", terminatorNode.getId(), n.getId());
-//                //because this graph is already a tree, we do a inverse dfs to get the paths from start to the corners
-//                //then we can say that we have identified a stage in the pipeline
-//                List<Node> stage = shortestPath(terminatorNode, n);
-//
-//                List<List<Node>> newLattice = matchPipeline(stage);
-//                if(finalLattice == null)
-//                    finalLattice = newLattice;
-//                if(newLattice != null && newLattice.get(0).size() > finalLattice.get(0).size()){
-//                    finalLattice = newLattice;
-//                }
-//            }
-//
-//        }
-//
-//        for(List<Node> stage : finalLattice){
-//            for(Node node : stage){
-//                node.setAttribute("color", "red");
-//
-//            }
-//        }
-        //                        edge.setAttribute("color", "red");
-//                        try {
-//                            Thread.sleep(500);
-//                        } catch (InterruptedException e) {
-//                            e.printStackTrace();
-//                        }
 
+        List<List<Node>> finalLattice = null;
+        for(Node n : cornerNodes){
+
+            for(Node terminatorNode : finishNodes){
+                System.out.printf("path from %d to %d \n", terminatorNode.getId(), n.getId());
+                //because this graph is already a tree, we do a inverse dfs to get the paths from start to the corners
+                //then we can say that we have identified a stage in the pipeline
+                List<Node> stage = shortestPath(terminatorNode, n);
+
+                List<List<Node>> newLattice = matchPipeline(stage);
+                if(finalLattice == null)
+                    finalLattice = newLattice;
+                if(newLattice != null && newLattice.get(0).size() > finalLattice.get(0).size()){
+                    finalLattice = newLattice;
+                }
+            }
+
+        }
+
+        for(List<Node> stage : finalLattice){
+            for(Node node : stage){
+                node.setAttribute(ATTR_COLOR, "red");
+
+            }
+        }
 
     }
     public List<List<Node>> matchPipeline(List<Node> stage){

@@ -6,6 +6,12 @@ import java.util.*;
  * Created by dude on 7/6/17.
  */
 public class DirectedGraph implements Iterable<Node>{
+    public static final String ATTR_INSTRUCTION = "instruction";
+    public static final String ATTR_SHAPE = "shape";
+    public static final String ATTR_COLOR = "color";
+    public static final String ATTR_LABEL = "label";
+    public static final String ATTR_STATIC_ID = "staticId";
+
     private String name;
     protected Map<Integer, Node> nodeMap = new HashMap<>();
     protected int maxNodeId = 0;
@@ -21,7 +27,10 @@ public class DirectedGraph implements Iterable<Node>{
         node.disconnect();
     }
     public void removeNode(int nodeId){
-        removeNode(nodeMap.get(nodeId));
+        if(nodeMap.containsKey(nodeId))
+            removeNode(nodeMap.get(nodeId));
+        else
+            throw new NoSuchElementException("node " + nodeId + " does not exist");
     }
 
     public int getNodeCount(){
@@ -30,6 +39,7 @@ public class DirectedGraph implements Iterable<Node>{
     public int getMaxNodeId(){
         return maxNodeId;
     }
+
 
     public Node getNode(Integer nodeId){
         return nodeMap.get(nodeId);

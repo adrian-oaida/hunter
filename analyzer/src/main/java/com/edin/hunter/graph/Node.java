@@ -7,10 +7,16 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.edin.hunter.graph.DirectedGraph.ATTR_INSTRUCTION;
+
 /**
  * Created by dude on 7/6/17.
  */
 public class Node {
+    public enum InstructionType
+    {
+        ASSIGNMENT, ITERATIVE
+    }
     private int id;
     protected DirectedGraph graph;
 
@@ -21,6 +27,11 @@ public class Node {
     private Map<String, String> attributes = new HashMap<>();
 
     private List<Node> associatedNodes = new ArrayList<>();
+    private InstructionType instructionType;
+
+    public InstructionType getInstructionType() {
+        return instructionType;
+    }
 
     public List<Node> getAssociatedNodes(){
         return associatedNodes;
@@ -60,6 +71,19 @@ public class Node {
 
     public void setAttribute(String attributeName, String attributeValue){
         attributes.put(attributeName, attributeValue);
+        if(attributes.containsKey(ATTR_INSTRUCTION)){
+            //
+            String instruction = attributes.get(ATTR_INSTRUCTION);
+
+            if(instruction.startsWith("for") ||
+                    instruction.startsWith("while") ||
+                    instruction.startsWith("do")){
+                this.instructionType = InstructionType.ITERATIVE;
+            }
+            if(instruction.split("=").length == 2){
+                this.instructionType = InstructionType.ASSIGNMENT;
+            }
+        }
     }
 
     public void copyAttributesFrom(Node node) {
