@@ -81,8 +81,9 @@ void *worker(void *arg){
         basic_block_id = enter_block(3, worker_id, "switch(worker_id % 3)");
         switch(worker_id % 3){
             case 0:
-                basic_block_id = enter_block(4, worker_id, "data[i] = 23");
-                data[i] = 23;
+                basic_block_id = enter_block(4, worker_id, "data[i] = data[i] + 23");
+                data[i] = data[i] + 23;
+                data_flow_trace(shadow_data[i], basic_block_id, worker_id);
                 shadow_data[i] = basic_block_id;
                 exit_block(worker_id);
                 break;

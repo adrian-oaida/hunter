@@ -62,8 +62,9 @@ void stage1(){
 
     basic_block_id = enter_block(4, 1, "for(int i = 0 ; i < data_size; i++)");
     for(int i = 0 ; i < data_size; i++){
-        basic_block_id = enter_block(5, 1, "data[i] = 23");
-        data[i] = 23;
+        basic_block_id = enter_block(5, 1, "data[i] = data[i] + 23");
+        data[i] = data[i] + 23;
+        data_flow_trace(shadow_data[i], basic_block_id, 1);
         shadow_data[i] = basic_block_id;
         exit_block(1);
     }
