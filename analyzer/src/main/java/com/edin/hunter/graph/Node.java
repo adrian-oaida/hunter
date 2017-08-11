@@ -15,7 +15,7 @@ import static com.edin.hunter.graph.DirectedGraph.ATTR_INSTRUCTION;
 public class Node {
     public enum InstructionType
     {
-        ASSIGNMENT, ITERATIVE
+        ASSIGNMENT, ITERATIVE, NONE
     }
     private int id;
     protected DirectedGraph graph;
@@ -27,9 +27,10 @@ public class Node {
     private Map<String, String> attributes = new HashMap<>();
 
     private List<Node> associatedNodes = new ArrayList<>();
-    private InstructionType instructionType;
 
-    public InstructionType getInstructionType() {
+    private InstructionType instructionType = InstructionType.NONE;
+
+    public InstructionType instructionType() {
         return instructionType;
     }
 
@@ -71,25 +72,27 @@ public class Node {
 
     public void setAttribute(String attributeName, String attributeValue){
         attributes.put(attributeName, attributeValue);
-        if(attributes.containsKey(ATTR_INSTRUCTION)){
-            //
-            String instruction = attributes.get(ATTR_INSTRUCTION);
-
-            if(instruction.startsWith("for") ||
-                    instruction.startsWith("while") ||
-                    instruction.startsWith("do")){
-                this.instructionType = InstructionType.ITERATIVE;
-            }
-            if(instruction.split("=").length == 2){
-                this.instructionType = InstructionType.ASSIGNMENT;
-            }
-        }
+        updateInstructionType();
     }
 
     public void copyAttributesFrom(Node node) {
         this.attributes.putAll(node.attributes);
+        updateInstructionType();
     }
+    private void updateInstructionType(){
+        if(attributes.get(ATTR_INSTRUCTION) != null){
 
+            String instruction = attributes.get(ATTR_INSTRUCTION);
+            instruction = instruction.replace("\"","");
+            if(instruction.startsWith("for") ||
+                    instruction.startsWith("while") ||
+                    instruction.startsWith("do")){
+                this.instructionType = InstructionType.ITERATIVE;
+            }else if(instruction.split("=").length == 2){
+                this.instructionType = InstructionType.ASSIGNMENT;
+            }
+        }
+    }
     public int getId(){
         return id;
     }

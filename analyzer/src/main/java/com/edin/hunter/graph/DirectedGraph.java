@@ -11,12 +11,27 @@ public class DirectedGraph implements Iterable<Node>{
     public static final String ATTR_COLOR = "color";
     public static final String ATTR_LABEL = "label";
     public static final String ATTR_STATIC_ID = "staticId";
+    public static String[] colorArray;
+
 
     private String name;
     protected Map<Integer, Node> nodeMap = new HashMap<>();
     protected int maxNodeId = 0;
+    private void generateColourArray(){
+        colorArray = new String[4 * 4 * 4];
+        for(int i = 0; i < 4; i++){
+            for(int j = 0; j < 4; j++){
+                for(int k = 0; k < 4; k++){
+                    colorArray[i*16 + j*4 + k] = String.format("rgb(%d, %d, %d)", (i*64), (k*64), (j*64));
+                }
+            }
+        }
 
+    }
     public DirectedGraph(String name){
+        if(colorArray == null){
+            generateColourArray();
+        }
         this.name = name;
     }
     public String getName(){
