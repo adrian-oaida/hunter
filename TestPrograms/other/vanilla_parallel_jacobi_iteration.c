@@ -98,8 +98,6 @@ void *worker(void *arg) {
     double maxdiff, temp;
     int i, j, iters;
     int first, last;
-
-
     /* determine first and last rows of my strip of the grids */
     first = worker_id*stripSize + 1;
     last = first + stripSize - 1;
@@ -108,28 +106,18 @@ void *worker(void *arg) {
         /* update my points */
         for (i = first; i <= last; i++) {
             for (j = 1; j <= gridSize; j++) {
-
                 grid2[i][j] = (grid1[i-1][j] + grid1[i+1][j] +
                                grid1[i][j-1] + grid1[i][j+1]) * 0.25;
-
-
-
             }
         }
         wait_for_barrier();
         /* update my points again */
         for (i = first; i <= last; i++) {
             for (j = 1; j <= gridSize; j++) {
-
                 grid1[i][j] = (grid2[i-1][j] + grid2[i+1][j] +
                                grid2[i][j-1] + grid2[i][j+1]) * 0.25;
-
-
-
-
             }
         }
-
         wait_for_barrier();
     }
     /* compute the maximum difference in my strip and set global variable */
@@ -137,34 +125,16 @@ void *worker(void *arg) {
     maxdiff = 0.0;
     for (i = first; i <= last; i++) {
         for (j = 1; j <= gridSize; j++) {
-
             temp = grid1[i][j]-grid2[i][j];
-
-
-
             if (temp < 0){
                 temp = -temp;
-
-
-
             }
             if (maxdiff < temp){
-
                 maxdiff = temp;
-
-
-
             }
-
-
         }
     }
-
-
     maxDiff[worker_id] = maxdiff;
-
-
-
 }
 
 void InitializeGrids() {
