@@ -75,30 +75,23 @@ void *worker(void *arg){
         switch(worker_id % 3){
             case 0:
                 stage1_state += data[i];
-
-
                 data[i] = data[i] + 23;
-
                 break;
             case 1:
                 tmp = data[i];
-
                 while(tmp != 0){
                     tmp = tmp / 3;
                 }
-
                 data[i] = tmp;
                 break;
             case 2:
                 stage3_state+= data[i];
-
                 if(stage3_state % 3 == 0){
                     data[i] = stage3_state + data[i];
 
                 }else{
                     data[i]++;
                 }
-
                 break;
         }
         wait_for_barrier();

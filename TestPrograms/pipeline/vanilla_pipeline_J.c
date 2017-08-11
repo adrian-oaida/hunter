@@ -71,7 +71,7 @@ void *worker(void *arg){
     for(int i = 0 ; i < data_size; i++){
         switch(worker_id % 3){
             case 0:
-                data[i] = 23;
+                data[i] = data[i] + 23;
                 break;
             case 1:
                 tmp = data[i];
@@ -79,7 +79,6 @@ void *worker(void *arg){
                 while(tmp != 0){
                     tmp = tmp / 3;
                 }
-
 
                 data[i] = tmp;
                 break;

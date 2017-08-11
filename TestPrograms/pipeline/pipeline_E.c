@@ -114,7 +114,7 @@ void *worker(void *arg){
         shadow_tmp = basic_block_id;
         exit_block(worker_id);
 
-        for(int j = 0; j < 5; j++){
+        for(int j = 0; j < 2; j++){
             basic_block_id = enter_block(5, worker_id, "tmp = tmp * 5");
 
             tmp = tmp * 5;

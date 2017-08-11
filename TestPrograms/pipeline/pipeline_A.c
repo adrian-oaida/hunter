@@ -44,11 +44,14 @@ int main(int argc, char *argv[]){
 
     shadow_data = get_trace_array(data_size);
 
+    basic_block_id = enter_block(1, num_workers,"for(int i = 0; i < worker_id;i++)");
+
     //creating the workers and putting them to work
     for(i = 0; i < num_workers; i++){
 
         pthread_create(&worker_ids[i], &attr, worker, (void *) i);
     }
+
 
     //joining the threads to get the computation result
     for(i = 0; i < num_workers; i++){
@@ -56,6 +59,7 @@ int main(int argc, char *argv[]){
 
     }
 
+    exit_block(num_workers);
     //writing the computation result to a file
 
     FILE *results = fopen("results", "w");
@@ -78,16 +82,15 @@ void *worker(void *arg){
 
     int shadow_worker_state = 0;
 
-    basic_block_id = enter_block(1, worker_id,"for(int i = 0; i < worker_id;i++)");
 
     for(int i = 0; i < worker_id;i++){
         //wait for other workers to catch to star the stage
         wait_for_barrier();
     }
 
+
     basic_block_id = enter_block(2, worker_id,"for(int i = 0; i < data_size; i++)");
     for(int i = 0; i < data_size; i++){
-
         basic_block_id = enter_block(3, worker_id,"worker_state = worker_state + 1");
 
         worker_state = worker_state + 1;
@@ -111,8 +114,10 @@ void *worker(void *arg){
         exit_block(worker_id);
 
         wait_for_barrier();
+
     }
-    exit_block(worker_id);
+
+
     exit_block(worker_id);
     for(int i = 0; i < (num_workers - worker_id -1); i++){
         //wait for other workers to catch up to end the stage
