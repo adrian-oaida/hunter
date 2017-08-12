@@ -26,3 +26,5 @@ analyzer/.gradle
 analyzer/.idea
 analyzer/build
 analyzer/out
+SampleSuite/cmake-build-debug
+SampleSuite/.idea

@@ -44,21 +44,34 @@ int main(int argc, char *argv[]){
     trace_init();
     int basic_block_id;
 
+    basic_block_id = enter_block(1, n, "for(int i = 0; i < n; i++)");
     for(int i = 0; i < n; i++){
+        basic_block_id = enter_block(2, n, "for(int j = 0; j < m; j++)");
         for(int j = 0; j < m; j++){
+            basic_block_id = enter_block(3, n, "fscanf(f, \\\"%d\\\", &m_a[i][j])");
             fscanf(f, "%d", &m_a[i][j]);
+            shadow_m_a[i][j] = basic_block_id;
+            exit_block(n);
         }
+        exit_block(n);
     }
+    exit_block(n);
 
+    basic_block_id = enter_block(4, n, "for(int j = 0; j < m; j++)");
     for(int j = 0; j < m; j++){
+        basic_block_id = enter_block(5, n, "for(int k = 0; k < p; k++)");
         for(int k = 0; k < p; k++){
+            basic_block_id = enter_block(6, n, "fscanf(f, \\\"%d\\\", &m_b[j][k])");
             fscanf(f, "%d", &m_b[j][k]);
+            shadow_m_b[j][k] = basic_block_id;
+            exit_block(n);
         }
+        exit_block(n);
     }
+    exit_block(n);
     fclose(f);
 
-    enter_block(1, n + 1, "for(int i = 0; i < n; i++)");
-
+    enter_block(1, n, "for(int i = 0; i < n; i++)");
     for(int i = 0; i < n; i++){
         pthread_create(&worker_ids[i], &attr, worker, (void *) i);
     }
@@ -66,9 +79,8 @@ int main(int argc, char *argv[]){
         pthread_join(worker_ids[i], NULL);
     }
 
-    exit_block(n + 1);
+    exit_block(n);
 
-    trace_end();
 
     free(m_a);
     free(m_b);
@@ -77,13 +89,20 @@ int main(int argc, char *argv[]){
 
     fprintf(f, "%d %d\r\n", n, p);
 
+    basic_block_id = enter_block(7, n, "for(int i = 0; i < n; i++)");
     for(int i = 0; i < n; i++){
+        basic_block_id = enter_block(8, n, "for(int k = 0; k < p; k++)");
         for(int k = 0; k < p; k++){
+            basic_block_id = enter_block(9, n, "fprintf(f, \\\"%d \\\", m_r[i][k])");
             fprintf(f, "%d ", m_r[i][k]);
+            data_flow_trace(shadow_m_r[i][k], basic_block_id, n);
+            exit_block(n);
         }
+        exit_block(n);
         fprintf(f, "\r\n");
     }
-
+    exit_block(n);
+    trace_end();
     fclose(f);
     free(m_r);
 }
@@ -92,12 +111,11 @@ void *worker(void *arg){
     int worker_id = (int)arg;
     int basic_block_id;
 
-    enter_block(2, worker_id, "for(int k = 0; k < p; k++)");
+    enter_block(10, worker_id, "for(int k = 0; k < p; k++)");
     for(int k = 0; k < p; k++){
-        enter_block(3, worker_id, "for(int j = 0; j < m; j++)");
-
+        enter_block(11, worker_id, "for(int j = 0; j < m; j++)");
         for(int j = 0; j < m; j++){
-            basic_block_id = enter_block(4, worker_id, "m_r[worker_id][k] = m_r[worker_id][k] + ( m_a[worker_id][j] * m_b[j][k] )");
+            basic_block_id = enter_block(12, worker_id, "m_r[worker_id][k] = m_r[worker_id][k] + ( m_a[worker_id][j] * m_b[j][k] )");
 
             m_r[worker_id][k] = m_r[worker_id][k] + ( m_a[worker_id][j] * m_b[j][k] );
 
