@@ -36,15 +36,19 @@ int main(int argc, char *argv[]){
     int basic_block_id;
 
     basic_block_id = enter_block(1,1, "stage1()");
-    stage1();
+
+        stage1();
 
     exit_block(1);
     basic_block_id = enter_block(2, 1, "stage2()");
-    stage2();
+
+        stage2();
 
     exit_block(1);
     basic_block_id = enter_block(3, 1, "stage3()");
-    stage3();
+
+        stage3();
+
     exit_block(1);
 
     FILE *results = fopen("results", "w");
@@ -60,68 +64,85 @@ int main(int argc, char *argv[]){
 void stage1(){
     int basic_block_id;
 
-    basic_block_id = enter_block(4, 1, "for(int i = 0 ; i < data_size; i++)");
     for(int i = 0 ; i < data_size; i++){
-        basic_block_id = enter_block(5, 1, "data[i] = data[i] + 23");
-        data[i] = data[i] + 23;
-        data_flow_trace(shadow_data[i], basic_block_id, 1);
-        shadow_data[i] = basic_block_id;
+        basic_block_id = enter_block(4, 1, "for(int i = 0 ; i < data_size; i++)");
+            basic_block_id = enter_block(5, 1, "data[i] = data[i] + 23");
+
+                data[i] = data[i] + 23;
+
+            data_flow_trace(shadow_data[i], basic_block_id, 1);
+            shadow_data[i] = basic_block_id;
+            exit_block(1);
         exit_block(1);
     }
-    exit_block(1);
 }
 void stage2(){
     int tmp;
     int basic_block_id;
     int shadow_tmp = 0;
 
-    basic_block_id = enter_block(6, 1, "for(int i = 0; i < data_size; i++)");
+
     for(int i = 0; i < data_size; i++){
+        basic_block_id = enter_block(6, 1, "for(int i = 0; i < data_size; i++)");
+            basic_block_id = enter_block(7, 1, "tmp = data[i]");
 
-        basic_block_id = enter_block(7, 1, "tmp = data[i]");
-        tmp = data[i];
-        data_flow_trace(shadow_data[i], basic_block_id, 1);
-        shadow_tmp = basic_block_id;
-        exit_block(1);
+                tmp = data[i];
 
-        basic_block_id = enter_block(8, 1, "while(tmp != 0)");
-        while(tmp != 0){
-            basic_block_id = enter_block(9, 1, "tmp = tmp / 3");
-            tmp = tmp / 3;
-            data_flow_trace(shadow_tmp, basic_block_id, 1);
+            data_flow_trace(shadow_data[i], basic_block_id, 1);
             shadow_tmp = basic_block_id;
             exit_block(1);
-        }
+
+            while(tmp != 0){
+                basic_block_id = enter_block(8, 1, "while(tmp != 0)");
+                    basic_block_id = enter_block(9, 1, "tmp = tmp / 3");
+
+                        tmp = tmp / 3;
+
+                    data_flow_trace(shadow_tmp, basic_block_id, 1);
+                    shadow_tmp = basic_block_id;
+                    exit_block(1);
+                exit_block(1);
+            }
+
+
+            basic_block_id = enter_block(10, 1, "data[i] = tmp");
+
+                data[i] = tmp;
+
+            data_flow_trace(shadow_tmp, basic_block_id, 1);
+            shadow_data[i] = basic_block_id;
+            exit_block(1);
         exit_block(1);
 
-        basic_block_id = enter_block(10, 1, "data[i] = tmp");
-        data[i] = tmp;
-        data_flow_trace(shadow_tmp, basic_block_id, 1);
-        shadow_data[i] = basic_block_id;
-
-        exit_block(1);
     }
-    exit_block(1);
 }
 void stage3(){
     int basic_block_id;
 
-    basic_block_id = enter_block(11, 1, "for(int i = 0; i < data_size; i++)");
     for(int i = 0; i < data_size; i++){
-        if(i % 3 == 0){
-            basic_block_id = enter_block(12, 1, "data[i] = 4");
-            data[i] = 4;
-            shadow_data[i] = basic_block_id;
-            exit_block(1);
-        }else{
-            basic_block_id = enter_block(13, 1, "data[i]++");
-            data[i]++;
-            data_flow_trace(shadow_data[i], basic_block_id, 1);
-            shadow_data[i] = basic_block_id;
+        basic_block_id = enter_block(11, 1, "for(int i = 0; i < data_size; i++)");
+            if(i % 3 == 0){
+                basic_block_id = enter_block(12, 1, "if(i % 3 == 0)");
+                    basic_block_id = enter_block(13, 1, "data[i] = 4");
 
-            exit_block(1);
-        }
+                        data[i] = 4;
+
+                    shadow_data[i] = basic_block_id;
+                    exit_block(1);
+                exit_block(1);
+            }else{
+                basic_block_id = enter_block(14, 1, "if(i % 3 == 0) else");
+                    basic_block_id = enter_block(13, 1, "data[i]++");
+
+                        data[i]++;
+
+                    data_flow_trace(shadow_data[i], basic_block_id, 1);
+                    shadow_data[i] = basic_block_id;
+                    exit_block(1);
+                exit_block(1);
+            }
+        exit_block(1);
+
     }
-    exit_block(1);
 }
 

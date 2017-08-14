@@ -79,72 +79,67 @@ void *worker(void *arg){
         wait_for_barrier();
     }
     int basic_block_id = 0;
+    int other_pipe;
+    int shadow_other_pipe = 0;
+    int shadow_tmp = 0;
+    int tmp;
 
-    basic_block_id = enter_block(2, worker_id,"for(int i = 0; i < data_size; i++)");
 
     for(int i = 0; i < data_size; i++){
-        basic_block_id = enter_block(3, worker_id, "worker_state = worker_state + data[i]");
+        basic_block_id = enter_block(2, worker_id,"for(int i = 0; i < data_size; i++)");
+            basic_block_id = enter_block(3, worker_id, "worker_state = worker_state + data[i]");
 
-        worker_state = worker_state + data[i];
+                worker_state = worker_state + data[i];
 
-        data_flow_trace(shadow_data[i], basic_block_id, worker_id);
-        data_flow_trace(shadow_worker_state, basic_block_id, worker_id);
-        shadow_worker_state = basic_block_id;
+            data_flow_trace(shadow_data[i], basic_block_id, worker_id);
+            data_flow_trace(shadow_worker_state, basic_block_id, worker_id);
+            shadow_worker_state = basic_block_id;
 
-        int other_pipe;
-        int shadow_other_pipe = 0;
+                other_pipe = data[i];
 
-        other_pipe = data[i];
+            data_flow_trace(shadow_data[i], basic_block_id, worker_id);
+            shadow_other_pipe = basic_block_id;
 
-        data_flow_trace(shadow_data[i], basic_block_id, worker_id);
-        shadow_other_pipe = basic_block_id;
+                tmp = worker_state;
 
-        //iterate over something while we are using data[i]
-        //and make a decision with previous state
-        int shadow_tmp = 0;
-        int tmp;
+            data_flow_trace(shadow_worker_state, basic_block_id, worker_id);
+            shadow_tmp = basic_block_id;
+            for(int j = 0; j < 6; j++){
+                if(j % 2 == 0){
 
-        tmp = worker_state;
+                       tmp = tmp * 5;
 
-        data_flow_trace(shadow_worker_state, basic_block_id, worker_id);
-        shadow_tmp = basic_block_id;
+                    data_flow_trace(shadow_tmp, basic_block_id, worker_id);
+                    shadow_tmp = basic_block_id;
 
-        for(int j = 0; j < 6; j++){
-            if(j % 2 == 0){
+                }else{
 
-                tmp = tmp * 5;
+                        tmp = tmp * other_pipe;
 
-                data_flow_trace(shadow_tmp, basic_block_id, worker_id);
-                shadow_tmp = basic_block_id;
+                    data_flow_trace(shadow_tmp, basic_block_id, worker_id);
+                    data_flow_trace(shadow_other_pipe, basic_block_id, worker_id);
+                    shadow_tmp = basic_block_id;
 
-            }else{
-
-                tmp = tmp * other_pipe;
-
-                data_flow_trace(shadow_tmp, basic_block_id, worker_id);
-                data_flow_trace(shadow_other_pipe, basic_block_id, worker_id);
-                shadow_tmp = basic_block_id;
+                }
 
             }
+                other_pipe *= 3;
 
-        }
-        other_pipe *= 3;
+            data_flow_trace(shadow_other_pipe, basic_block_id, worker_id);
+            shadow_other_pipe = basic_block_id;
 
-        data_flow_trace(shadow_other_pipe, basic_block_id, worker_id);
-        shadow_other_pipe = basic_block_id;
+                data[i] = tmp + other_pipe;
 
+            data_flow_trace(shadow_other_pipe, basic_block_id, worker_id);
+            data_flow_trace(shadow_tmp, basic_block_id, worker_id);
+            shadow_data[i] = basic_block_id;
+            exit_block(worker_id);
 
-        data[i] = tmp + other_pipe;
-
-        data_flow_trace(shadow_other_pipe, basic_block_id, worker_id);
-        data_flow_trace(shadow_tmp, basic_block_id, worker_id);
-        shadow_data[i] = basic_block_id;
+            //wait for other workers to catch up
+            wait_for_barrier();
         exit_block(worker_id);
 
-        //wait for other workers to catch up
-        wait_for_barrier();
     }
-    exit_block(worker_id);
 
     for(int i = 0; i < (num_workers - worker_id -1); i++){
         //wait for other workers to catch up to end the stage

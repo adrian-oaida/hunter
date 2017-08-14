@@ -30,37 +30,43 @@ int main(int argc, char *argv[]){
     int startX, startY;
     int stopX, stopY;
 
-    basic_block_id = enter_block(2, 1, "for(int i = 0; i < n; i++)");
-    for(int i = 0; i < n; i++){
-        map[i] = (int*)malloc(m * sizeof(int));
-        basic_block_id = enter_block(3, 1, "for(int j = 0; j < m; j++)");
-        for(int j = 0; j < m; j++){
-            basic_block_id = enter_block(4, 1, "fscanf(f, \\\"%s \\\", tmp)");
-            fscanf(f, "%s ", tmp);
-            shadow_tmp = basic_block_id;
 
-            exit_block(1);
-            basic_block_id = enter_block(5, 1, "if(tmp[0] != 'S' && tmp[0] != 'G')");
-            if(tmp[0] != 'S' && tmp[0] != 'G'){
-                basic_block_id = enter_block(6, 1, "map[i][j] = atoi(tmp)");
-                map[i][j] = atoi(tmp);
-                data_flow_trace(shadow_tmp, basic_block_id, 1);
-                shadow_map[i][j] = basic_block_id;
+    for(int i = 0; i < n; i++){
+        basic_block_id = enter_block(2, 1, "for(int i = 0; i < n; i++)");
+            map[i] = (int*)malloc(m * sizeof(int));
+            for(int j = 0; j < m; j++){
+                basic_block_id = enter_block(3, 1, "for(int j = 0; j < m; j++)");
+                    basic_block_id = enter_block(4, 1, "fscanf(f, \\\"%s \\\", tmp)");
+
+                        fscanf(f, "%s ", tmp);
+
+                    shadow_tmp = basic_block_id;
+                    exit_block(1);
+
+
+                    if(tmp[0] != 'S' && tmp[0] != 'G'){
+                        basic_block_id = enter_block(5, 1, "if(tmp[0] != 'S' && tmp[0] != 'G')");
+                            basic_block_id = enter_block(6, 1, "map[i][j] = atoi(tmp)");
+
+                                map[i][j] = atoi(tmp);
+
+                            data_flow_trace(shadow_tmp, basic_block_id, 1);
+                            shadow_map[i][j] = basic_block_id;
+                            exit_block(1);
+                        exit_block(1);
+                    }
+
+                    if(tmp[0] == 'G'){
+                        startX = i; startY = j;
+                    }
+                    if(tmp[0] == 'S'){
+                        stopX = i; stopY = j;
+                    }
                 exit_block(1);
             }
-            exit_block(1);
-
-            if(tmp[0] == 'G'){
-                startX = i; startY = j;
-            }
-            if(tmp[0] == 'S'){
-                stopX = i; stopY = j;
-            }
-        }
+            fscanf(f,"\n");
         exit_block(1);
-        fscanf(f,"\n");
     }
-    exit_block(1);
     fclose(f);
     //propagate phase
 
@@ -70,12 +76,14 @@ int main(int argc, char *argv[]){
     queue[qM].x = startX; queue[qM++].y = startY;
 
     basic_block_id = enter_block(7, 1, "map[startX][startY] = 2");
-    map[startX][startY] = 2;
+
+        map[startX][startY] = 2;
+
     shadow_map[startX][startY] = basic_block_id;
     exit_block(1);
 
-    basic_block_id = enter_block(8, 1, "while(qC != qM)");
     while(qC != qM){
+        basic_block_id = enter_block(8, 1, "while(qC != qM)");
         //neigh are
         //   8 1 2
         //   7 C 3
@@ -88,7 +96,8 @@ int main(int argc, char *argv[]){
             if(map[x - 1][y - 1] == 0){ // 8
                 queue[qM].x = x - 1;queue[qM++].y = y - 1;
                 basic_block_id = enter_block(9, 1, "map[x - 1][y - 1] = map[x][y] + 1");
-                map[x - 1][y - 1] = map[x][y] + 1;
+
+                    map[x - 1][y - 1] = map[x][y] + 1;
 
                 data_flow_trace(shadow_map[x][y], basic_block_id, 1);
                 shadow_map[x - 1][y - 1] = basic_block_id;
@@ -101,7 +110,8 @@ int main(int argc, char *argv[]){
                     queue[qM].x = x - 1; queue[qM++].y = y + 1;
                     basic_block_id = enter_block(10, 1, "map[x - 1][y + 1] = map[x][y] + 1");
 
-                    map[x - 1][y + 1] = map[x][y] + 1;
+                        map[x - 1][y + 1] = map[x][y] + 1;
+
                     data_flow_trace(shadow_map[x][y], basic_block_id, 1);
                     shadow_map[x - 1][y + 1] = basic_block_id;
                     exit_block(1);
@@ -110,9 +120,10 @@ int main(int argc, char *argv[]){
 
             if(map[x - 1][y] == 0){ // 1
                 queue[qM].x = x - 1;queue[qM++].y = y;
-
                 basic_block_id = enter_block(11, 1, "map[x - 1][y] = map[x][y] + 1");
-                map[x - 1][y] = map[x][y] + 1;
+
+                    map[x - 1][y] = map[x][y] + 1;
+
                 data_flow_trace(shadow_map[x][y], basic_block_id, 1);
                 shadow_map[x - 1][y] = basic_block_id;
                 exit_block(1);
@@ -123,9 +134,9 @@ int main(int argc, char *argv[]){
             if(x < n - 1){
                 if(map[x + 1][y - 1] == 0){ //6
                     queue[qM].x = x + 1; queue[qM++].y = y - 1;
-
                     basic_block_id = enter_block(12, 1, "map[x + 1][y - 1] = map[x][y] + 1");
-                    map[x + 1][y - 1] = map[x][y] + 1;
+
+                        map[x + 1][y - 1] = map[x][y] + 1;
 
                     data_flow_trace(shadow_map[x][y], basic_block_id, 1);
                     shadow_map[x + 1][y - 1] = basic_block_id;
@@ -135,10 +146,10 @@ int main(int argc, char *argv[]){
             }
             if(map[x][y - 1] == 0){// 7
                 queue[qM].x = x; queue[qM++].y = y - 1;
-
                 basic_block_id = enter_block(13, 1, "map[x][y - 1] = map[x][y] + 1");
 
-                map[x][y - 1] = map[x][y] + 1;
+                    map[x][y - 1] = map[x][y] + 1;
+
                 data_flow_trace(shadow_map[x][y], basic_block_id, 1);
                 shadow_map[x][y - 1] = basic_block_id;
                 exit_block(1);
@@ -148,10 +159,10 @@ int main(int argc, char *argv[]){
         if(x < n - 1 && y < m - 1) {
             if (map[x + 1][y + 1] == 0) {//4
                 queue[qM].x = x + 1;queue[qM++].y = y + 1;
-
                 basic_block_id = enter_block(14, 1, "map[x + 1][y + 1] = map[x][y] + 1");
 
-                map[x + 1][y + 1] = map[x][y] + 1;
+                    map[x + 1][y + 1] = map[x][y] + 1;
+
                 data_flow_trace(shadow_map[x][y], basic_block_id, 1);
                 shadow_map[x + 1][y + 1] = basic_block_id;
                 exit_block(1);
@@ -161,10 +172,10 @@ int main(int argc, char *argv[]){
         if(x < n - 1){
             if(map[x + 1][y] == 0){//5
                 queue[qM].x = x + 1; queue[qM++].y = y;
-
                 basic_block_id = enter_block(15, 1, "map[x + 1][y] = map[x][y] + 1");
 
-                map[x + 1][y] = map[x][y] + 1;
+                    map[x + 1][y] = map[x][y] + 1;
+
                 data_flow_trace(shadow_map[x][y], basic_block_id, 1);
                 shadow_map[x + 1][y] = basic_block_id;
                 exit_block(1);
@@ -174,10 +185,10 @@ int main(int argc, char *argv[]){
         if(y < m - 1){
             if(map[x][y + 1] == 0){//3
                 queue[qM].x = x; queue[qM].y = y + 1;
-
                 basic_block_id = enter_block(16, 1, "map[x][y + 1] = map[x][y] + 1");
 
-                map[x][y + 1] = map[x][y] + 1;
+                    map[x][y + 1] = map[x][y] + 1;
+
                 data_flow_trace(shadow_map[x][y], basic_block_id, 1);
                 shadow_map[x][y + 1] = basic_block_id;
                 exit_block(1);
@@ -185,26 +196,31 @@ int main(int argc, char *argv[]){
             }
         }
 
-
+        exit_block(1);
     }
-    exit_block(1);
+
     printf("\n");
 
     f = fopen(argv[2], "w");
-    enter_block(17, 1, "for(int i = 0; i < n ; i++)");
+
     for(int i = 0; i < n ; i++){
-        enter_block(18, 1, "for(int j = 0; j < m ; j++)");
+        enter_block(17, 1, "for(int i = 0; i < n ; i++)");
         for(int j = 0; j < m ; j++){
-            basic_block_id = enter_block(19, 1, "printf(\\\"%3d \\\", map[i][j])");
-            fprintf(f, "%3d ", map[i][j]);
-            data_flow_trace(shadow_map[i][j], basic_block_id, 1);
+            enter_block(18, 1, "for(int j = 0; j < m ; j++)");
+                basic_block_id = enter_block(19, 1, "printf(\\\"%3d \\\", map[i][j])");
+
+                    fprintf(f, "%3d ", map[i][j]);
+
+                data_flow_trace(shadow_map[i][j], basic_block_id, 1);
+                exit_block(1);
             exit_block(1);
+
         }
-        exit_block(1);
         fprintf(f, "\n");
+        exit_block(1);
+
     }
     fclose(f);
-    exit_block(1);
     exit_block(1);
     trace_end();
     free(map);//this does not completly free it

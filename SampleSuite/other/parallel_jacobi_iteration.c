@@ -74,20 +74,23 @@ int main(int argc, char *argv[]) {
 
     int basic_block_id = 0;
     int shadow_maxdiff = 0;
-    basic_block_id = enter_block(14, numWorkers + 1, "for (i = 0; i < numWorkers; i++)");
     /* print the results */
     for (i = 0; i < numWorkers; i++){
-        if (maxdiff < maxDiff[i]){
-            basic_block_id = enter_block(15, numWorkers + 1, "maxdiff = maxDiff[i]");
-            maxdiff = maxDiff[i];
+        basic_block_id = enter_block(14, numWorkers, "for (i = 0; i < numWorkers; i++)");
 
-            data_flow_trace(shadow_maxDiff[i], basic_block_id, numWorkers + 1);
+        if (maxdiff < maxDiff[i]){
+            basic_block_id = enter_block(15, numWorkers, "maxdiff = maxDiff[i]");
+
+                maxdiff = maxDiff[i];
+
+            data_flow_trace(shadow_maxDiff[i], basic_block_id, numWorkers);
             shadow_maxdiff = basic_block_id;
-            exit_block(numWorkers + 1);
+            exit_block(numWorkers);
         }
+        exit_block(numWorkers);
     }
 
-    exit_block(numWorkers + 1);
+
     trace_end();
 
 
@@ -119,113 +122,113 @@ void *worker(void *arg) {
     /* determine first and last rows of my strip of the grids */
     first = worker_id*stripSize + 1;
     last = first + stripSize - 1;
-    basic_block_id = enter_block(1, worker_id," for (iters = 1; iters <= numIters; iters++)");
 
     for (iters = 1; iters <= numIters; iters++) {
-        /* update my points */
-        basic_block_id = enter_block(2, worker_id, " for (i = first; i <= last; i++)");
-        for (i = first; i <= last; i++) {
-            basic_block_id = enter_block(3, worker_id, "for (j = 1; j <= gridSize; j++)");
-            for (j = 1; j <= gridSize; j++) {
-                basic_block_id = enter_block(4, worker_id, "grid2[i][j] = (grid1[i-1][j] + grid1[i+1][j] \\n   + grid1[i][j-1] + grid1[i][j+1]) * 0.25");
+        basic_block_id = enter_block(1, worker_id," for (iters = 1; iters <= numIters; iters++)");
 
-                grid2[i][j] = (grid1[i-1][j] + grid1[i+1][j] +
-                               grid1[i][j-1] + grid1[i][j+1]) * 0.25;
+            /* update my points */
+            for (i = first; i <= last; i++) {
+                basic_block_id = enter_block(2, worker_id, " for (i = first; i <= last; i++)");
+                for (j = 1; j <= gridSize; j++) {
+                    basic_block_id = enter_block(3, worker_id, "for (j = 1; j <= gridSize; j++)");
 
-                data_flow_trace(shadow_grid1[i - 1][j], basic_block_id, worker_id);
-                data_flow_trace(shadow_grid1[i + 1][j], basic_block_id, worker_id);
-                data_flow_trace(shadow_grid1[i][j - 1], basic_block_id, worker_id);
-                data_flow_trace(shadow_grid1[i][j + 1], basic_block_id, worker_id);
+                        basic_block_id = enter_block(4, worker_id, "grid2[i][j] = (grid1[i-1][j] + grid1[i+1][j] \\n   + grid1[i][j-1] + grid1[i][j+1]) * 0.25");
 
-                shadow_grid2[i][j] = basic_block_id;
+                            grid2[i][j] = (grid1[i-1][j] + grid1[i+1][j] +
+                                           grid1[i][j-1] + grid1[i][j+1]) * 0.25;
 
+                        data_flow_trace(shadow_grid1[i - 1][j], basic_block_id, worker_id);
+                        data_flow_trace(shadow_grid1[i + 1][j], basic_block_id, worker_id);
+                        data_flow_trace(shadow_grid1[i][j - 1], basic_block_id, worker_id);
+                        data_flow_trace(shadow_grid1[i][j + 1], basic_block_id, worker_id);
+                        shadow_grid2[i][j] = basic_block_id;
+                        exit_block(worker_id);
+                    exit_block(worker_id);
+
+                }
                 exit_block(worker_id);
             }
-        }
-        exit_block(worker_id);
-        wait_for_barrier();
-        basic_block_id = enter_block(5, worker_id, "for (i = first; i <= last; i++)");
-        /* update my points again */
-        for (i = first; i <= last; i++) {
-            basic_block_id = enter_block(6, worker_id, "for (j = 1; j <= gridSize; j++)");
-            for (j = 1; j <= gridSize; j++) {
-                basic_block_id = enter_block(7, worker_id, "grid1[i][j] = (grid2[i-1][j] + grid2[i+1][j] \\n   + grid2[i][j-1] + grid2[i][j+1]) * 0.25;");
 
-                grid1[i][j] = (grid2[i-1][j] + grid2[i+1][j] +
-                               grid2[i][j-1] + grid2[i][j+1]) * 0.25;
+            wait_for_barrier();
+            /* update my points again */
+            for (i = first; i <= last; i++) {
+                basic_block_id = enter_block(5, worker_id, "for (i = first; i <= last; i++)");
 
-                data_flow_trace(shadow_grid2[i - 1][j], basic_block_id, worker_id);
-                data_flow_trace(shadow_grid2[i + 1][j], basic_block_id, worker_id);
-                data_flow_trace(shadow_grid2[i][j - 1], basic_block_id, worker_id);
-                data_flow_trace(shadow_grid2[i][j + 1], basic_block_id, worker_id);
+                for (j = 1; j <= gridSize; j++) {
+                    basic_block_id = enter_block(6, worker_id, "for (j = 1; j <= gridSize; j++)");
 
+                        basic_block_id = enter_block(7, worker_id, "grid1[i][j] = (grid2[i-1][j] + grid2[i+1][j] \\n   + grid2[i][j-1] + grid2[i][j+1]) * 0.25;");
 
-                shadow_grid1[i][j] = basic_block_id;
+                            grid1[i][j] = (grid2[i-1][j] + grid2[i+1][j] +
+                                           grid2[i][j-1] + grid2[i][j+1]) * 0.25;
 
+                        data_flow_trace(shadow_grid2[i - 1][j], basic_block_id, worker_id);
+                        data_flow_trace(shadow_grid2[i + 1][j], basic_block_id, worker_id);
+                        data_flow_trace(shadow_grid2[i][j - 1], basic_block_id, worker_id);
+                        data_flow_trace(shadow_grid2[i][j + 1], basic_block_id, worker_id);
+                        shadow_grid1[i][j] = basic_block_id;
+                        exit_block(worker_id);
+                    exit_block(worker_id);
+                }
                 exit_block(worker_id);
             }
-        }
 
+            wait_for_barrier();
         exit_block(worker_id);
-        wait_for_barrier();
+
     }
     /* compute the maximum difference in my strip and set global variable */
 
     int shadow_temp = 0;
     int shadow_maxdiff = 0;
-    basic_block_id = enter_block(8, worker_id, "for (i = first; i <= last; i++)");
     maxdiff = 0.0;
     for (i = first; i <= last; i++) {
-        basic_block_id = enter_block(9, worker_id, " for (j = 1; j <= gridSize; j++) ");
-        for (j = 1; j <= gridSize; j++) {
-            basic_block_id = enter_block(10, worker_id, "temp = grid1[i][j]-grid2[i][j]");
+        basic_block_id = enter_block(8, worker_id, "for (i = first; i <= last; i++)");
 
-            temp = grid1[i][j]-grid2[i][j];
+            for (j = 1; j <= gridSize; j++) {
+                basic_block_id = enter_block(9, worker_id, " for (j = 1; j <= gridSize; j++) ");
 
-            data_flow_trace(shadow_grid1[i][j], basic_block_id, worker_id);
-            data_flow_trace(shadow_grid2[i][j], basic_block_id, worker_id);
-            shadow_temp = basic_block_id;
+                    basic_block_id = enter_block(10, worker_id, "temp = grid1[i][j]-grid2[i][j]");
 
-            exit_block(worker_id);
+                        temp = grid1[i][j]-grid2[i][j];
 
-            if (temp < 0){
-                basic_block_id = enter_block(11, worker_id, "temp = -temp");
-                temp = -temp;
+                    data_flow_trace(shadow_grid1[i][j], basic_block_id, worker_id);
+                    data_flow_trace(shadow_grid2[i][j], basic_block_id, worker_id);
+                    shadow_temp = basic_block_id;
+                    exit_block(worker_id);
 
-                data_flow_trace(shadow_temp, basic_block_id, worker_id);
-                shadow_temp = basic_block_id;
+                    if (temp < 0){
+                        basic_block_id = enter_block(11, worker_id, "temp = -temp");
 
+                            temp = -temp;
+
+                        data_flow_trace(shadow_temp, basic_block_id, worker_id);
+                        shadow_temp = basic_block_id;
+                        exit_block(worker_id);
+
+                    }
+                    if (maxdiff < temp){
+                        basic_block_id = enter_block(12, worker_id, "maxdiff = temp");
+
+                            maxdiff = temp;
+
+                        data_flow_trace(shadow_temp, basic_block_id, worker_id);
+                        shadow_maxdiff = basic_block_id;
+                        exit_block(worker_id);
+                    }
                 exit_block(worker_id);
-
             }
-            if (maxdiff < temp){
-                basic_block_id = enter_block(12, worker_id, "maxdiff = temp");
-
-                maxdiff = temp;
-
-                data_flow_trace(shadow_temp, basic_block_id, worker_id);
-                shadow_maxdiff = basic_block_id;
-
-
-                exit_block(worker_id);
-            }
-
-
-            exit_block(worker_id);
-        }
         exit_block(worker_id);
+
     }
-    exit_block(worker_id);
 
     basic_block_id = enter_block(13, worker_id, "maxDiff[worker_id] = maxdiff");
 
-    maxDiff[worker_id] = maxdiff;
+        maxDiff[worker_id] = maxdiff;
 
+        data_flow_trace(shadow_maxdiff, basic_block_id, worker_id);
+        shadow_maxDiff[worker_id] = basic_block_id;
 
-    data_flow_trace(shadow_maxdiff, basic_block_id, worker_id);
-    shadow_maxDiff[worker_id] = basic_block_id;
-
-    exit_block(worker_id);
     exit_block(worker_id);
 }
 

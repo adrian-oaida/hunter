@@ -80,33 +80,33 @@ void *worker(void *arg){
     }
     int basic_block_id = 0;
 
-    basic_block_id = enter_block(2, worker_id, "for(int i = 0; i < data_size; i++)");
+
     for(int i = 0; i < data_size; i++){
-        basic_block_id = enter_block(3, worker_id, "worker_state = worker_state + 1 \\n temp = data[i] \\n data[i] = 1 + worker_state + temp");
+        basic_block_id = enter_block(2, worker_id, "for(int i = 0; i < data_size; i++)");
+            basic_block_id = enter_block(3, worker_id, "worker_state = worker_state + 1 \\n temp = data[i] \\n data[i] = 1 + worker_state + temp");
 
-        worker_state = worker_state + 1;
+            worker_state = worker_state + 1;
 
-        data_flow_trace(shadow_worker_state, basic_block_id, worker_id);
-        shadow_worker_state = basic_block_id;
+            data_flow_trace(shadow_worker_state, basic_block_id, worker_id);
+            shadow_worker_state = basic_block_id;
 
-        temp = data[i];
+            temp = data[i];
 
-        data_flow_trace(shadow_data[i], basic_block_id, worker_id);
-        shadow_temp = basic_block_id;
+            data_flow_trace(shadow_data[i], basic_block_id, worker_id);
+            shadow_temp = basic_block_id;
 
-        data[i] = 1 + worker_state + temp;
+            data[i] = 1 + worker_state + temp;
 
-        data_flow_trace(shadow_worker_state, basic_block_id, worker_id);
-        data_flow_trace(shadow_temp, basic_block_id, worker_id);
-
-        shadow_data[i] = basic_block_id;
-
-        exit_block(worker_id);
+            data_flow_trace(shadow_worker_state, basic_block_id, worker_id);
+            data_flow_trace(shadow_temp, basic_block_id, worker_id);
+            shadow_data[i] = basic_block_id;
+            exit_block(worker_id);
 
         //wait for other workers to catch up
-        wait_for_barrier();
+            wait_for_barrier();
+        exit_block(worker_id);
+
     }
-    exit_block(worker_id);
 
     for(int i = 0; i < (num_workers - worker_id -1); i++){
         //wait for other workers to catch up to end the stage

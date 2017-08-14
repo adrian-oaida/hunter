@@ -86,30 +86,27 @@ void *worker(void *arg){
         wait_for_barrier();
     }
 
-    basic_block_id = enter_block(2, worker_id,"for(int i = 0; i < data_size; i++)");
     for(int i = 0; i < data_size; i++){
+        basic_block_id = enter_block(2, worker_id,"for(int i = 0; i < data_size; i++)");
+            basic_block_id = enter_block(3, worker_id,"worker_state = worker_state + 1 \\n data[i] = data[i] + worker_state");
 
-        basic_block_id = enter_block(3, worker_id,"worker_state = worker_state + 1 \\n data[i] = data[i] + worker_state");
+                worker_state = worker_state + 1;
 
-        worker_state = worker_state + 1;
+            data_flow_trace(shadow_worker_state ,basic_block_id, worker_id);
+            shadow_worker_state = basic_block_id;
 
-        data_flow_trace(shadow_worker_state ,basic_block_id, worker_id);
+                data[i] = data[i] + worker_id;
 
-        shadow_worker_state = basic_block_id;
+            data_flow_trace(shadow_worker_state ,basic_block_id, worker_id);
+            data_flow_trace(shadow_data[i], basic_block_id, worker_id);
+            shadow_data[i] = basic_block_id;
+            //wait for other workers to catch up
+            exit_block(worker_id);
 
-        data[i] = data[i] + worker_id;
-
-        data_flow_trace(shadow_worker_state ,basic_block_id, worker_id);
-        data_flow_trace(shadow_data[i], basic_block_id, worker_id);
-
-        shadow_data[i] = basic_block_id;
-
-        //wait for other workers to catch up
+            wait_for_barrier();
         exit_block(worker_id);
 
-        wait_for_barrier();
     }
-    exit_block(worker_id);
     exit_block(worker_id);
 
     for(int i = 0; i < (num_workers - worker_id -1); i++){
