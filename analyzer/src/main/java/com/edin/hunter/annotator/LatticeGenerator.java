@@ -3,6 +3,9 @@ package com.edin.hunter.annotator;
 import com.edin.hunter.graph.DirectedGraph;
 import com.edin.hunter.graph.Node;
 import com.edin.hunter.ui.GraphViewer;
+import com.edin.hunter.ui.RemoteGraphViewer;
+
+import static com.edin.hunter.graph.DirectedGraph.ATTR_COLOR;
 
 /**
  * Created by dude on 7/9/17.
@@ -37,11 +40,18 @@ public class LatticeGenerator {
 
     }
     public void displayLattice(){
-//        BaseMatcher matcher = new BackwardStageMatcher(graph);
-//        matcher.detect();
-//
-//        GraphViewer viewer = new GraphViewer(graph);
-//        viewer.displayGraph();
+
+        for(Node node : graph){
+            if(node.getInDegree() == 0){
+                node.setAttribute(ATTR_COLOR, "red");
+            }
+            if(node.getOutDegree() == 0){
+                node.setAttribute(ATTR_COLOR, "black");
+            }
+        }
+
+        RemoteGraphViewer viewer = new RemoteGraphViewer(null,graph);
+        viewer.startServer();
 
     }
 }
