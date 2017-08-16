@@ -11,10 +11,10 @@ import java.util.List;
 
 import static com.edin.hunter.graph.DirectedGraph.ATTR_COLOR;
 
-public class CornerStructuralDetector extends LatticeDetector implements StructuralDetector {
+public class SLMDetector extends LatticeDetector implements StructuralDetector {
 
 
-    public CornerStructuralDetector(BaseRunner runner) {
+    public SLMDetector(BaseRunner runner) {
         super(runner);
     }
 
@@ -34,7 +34,6 @@ public class CornerStructuralDetector extends LatticeDetector implements Structu
                     cornerNodes.add(node);
                 }else{
                     centerNodes.add(node);
-                    System.out.println("center " + node.getId());
                 }
             }else{
                 if(node.getOutDegree() == 0){
@@ -46,20 +45,18 @@ public class CornerStructuralDetector extends LatticeDetector implements Structu
                 }
             }
         }
-        System.out.printf("start %d\n", startNodes.size());
-        System.out.printf("finish %d\n", stopNodes.size());
-        System.out.printf("corner %d\n", cornerNodes.size());
-        System.out.printf("center %d\n", centerNodes.size());
-        System.out.printf("other %d\n", otherTypes.size());
+
 
         List<List<Node>> finalLattice = null;
+        if(cornerNodes.size() > (startNodes.size() + stopNodes.size()))
+            return false;
         for(Node n : cornerNodes){
 
             for(Node terminatorNode : stopNodes){
-                System.out.printf("path from %d to %d \n", terminatorNode.getId(), n.getId());
+//                System.out.printf("path from %d to %d \n", terminatorNode.getId(), n.getId());
                 //because this graph is already a tree, we do a inverse dfs to get the paths from start to the corners
                 //then we can say that we have identified a stage in the pipeline
-                List<Node> stage = shortestPath(terminatorNode, n);
+                List<Node> stage = shortestPath(n, terminatorNode);
 
                 List<List<Node>> newLattice = matchLattice(stage);
                 if(finalLattice == null)
@@ -71,13 +68,24 @@ public class CornerStructuralDetector extends LatticeDetector implements Structu
 
         }
         if(finalLattice != null){
+            int latticeNodeSize = 0;
             for(List<Node> stage : finalLattice){
                 for(Node node : stage){
+                    latticeNodeSize++;
                     node.setAttribute(ATTR_COLOR, "red");
-
                 }
             }
-            return true;
+//            int otherSubGraphsSize = 0;
+//            for(Node node : dataFlowGraph){
+//                if(node.getAttribute(ATTR_COLOR) != "red"){
+//                    otherSubGraphsSize++;
+//                }
+//            }
+            if(latticeNodeSize == dataFlowGraph.getNodeCount()){
+                return true;
+            }else{
+                return false;
+            }
         }else{
             return false;
         }
@@ -85,13 +93,14 @@ public class CornerStructuralDetector extends LatticeDetector implements Structu
     private List<Node> shortestPath(Node x, Node y){
         boolean[] visited = new boolean[dataFlowGraph.getMaxNodeId() + 1];
         List<Edge> path = new ArrayList<>();
-        incomingDFS(x, visited, y, path);
+        outgoingDFS(x, visited, y, path);
         Collections.reverse(path);
         List<Node> pathNodes = new ArrayList<>();
-        pathNodes.add(x);
         for(Edge e : path){
             pathNodes.add(e.getSource());
         }
+        pathNodes.add(y);
+
         return pathNodes;
     }
 }

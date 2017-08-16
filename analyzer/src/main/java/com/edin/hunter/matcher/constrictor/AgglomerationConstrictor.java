@@ -5,7 +5,7 @@ import com.edin.hunter.graph.Edge;
 import com.edin.hunter.graph.Node;
 import com.edin.hunter.runner.BaseRunner;
 
-import java.util.List;
+import java.util.*;
 
 public abstract class AgglomerationConstrictor {
     public DirectedGraph getDataFlowGraph() {
@@ -31,7 +31,7 @@ public abstract class AgglomerationConstrictor {
         dynamicCallGraph = runner.getDynamicCallGraph();
 
     }
-    public abstract boolean eliminateAgglomeration();
+    public abstract int eliminateAgglomeration();
 
     /*
     * This method modified the graph by removing edges that point to their originating node (source = target)
@@ -59,6 +59,21 @@ public abstract class AgglomerationConstrictor {
                 }
             }
         }
-
     }
+    protected List<Node> getSubGraph(Node root){
+        List<Node> result = new ArrayList<>();
+
+        Deque<Node> queue = new ArrayDeque<>();
+        queue.add(root);
+        while(!queue.isEmpty()){
+            Node node = queue.poll();
+            for(Edge edge : node.getOutgoingEdges()){
+                result.add(edge.getTarget());
+                queue.add(edge.getTarget());
+            }
+        }
+
+        return result;
+    }
+
 }

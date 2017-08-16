@@ -19,11 +19,8 @@ public class SeseConstrictor extends AgglomerationConstrictor {
     }
 
     @Override
-    public boolean eliminateAgglomeration() {
-        return false;
-    }
-
-    private boolean mergeLinearSESE(DirectedGraph dataFlowGraph) {
+    public int eliminateAgglomeration() {
+        int initialDFNodeNumber = dataFlowGraph.getNodeCount();
         boolean[] visited = new boolean[dataFlowGraph.getMaxNodeId() + 1];
         boolean hasConstricted = false;
         List<Node> sisoNodes = new ArrayList<>();
@@ -58,7 +55,7 @@ public class SeseConstrictor extends AgglomerationConstrictor {
         //in this stage we have to order the region
         //but first we will just colour it
         int color = 0;
-        System.out.printf("got %d regions \n", regionsList.size());
+//        System.out.printf("got %d regions \n", regionsList.size());
         //get the first and last node, and create an edge between the parent and child of the region
 
         for(Set<Node> region : regionsList){
@@ -82,6 +79,8 @@ public class SeseConstrictor extends AgglomerationConstrictor {
             }
             color++;
         }
-        return hasConstricted;
+        return initialDFNodeNumber - dataFlowGraph.getNodeCount();
+
     }
+
 }

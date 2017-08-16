@@ -29,6 +29,8 @@ public abstract class LatticeDetector{
 
     protected List<List<Node>> matchLattice(List<Node> seedStage){
         List<List<Node>> pipeline = new ArrayList<>();
+        //TODO need to check that there is at most a one to one relationship
+        //otherwise we have a stencil pattern
 
         boolean visited[] = new boolean[dataFlowGraph.getMaxNodeId() + 1];
         for(Node node : seedStage){
@@ -66,11 +68,12 @@ public abstract class LatticeDetector{
         return pipeline;
     }
 
+
     /*
     * This method performs a depth first search on incoming edges until it research the node y and returns a reversed path to that node
     * */
-
     protected boolean incomingDFS(Node node, boolean[] visited, Node y, List<Edge> path){
+
         visited[node.getId()] = true;
         if(node == y){
             return true;

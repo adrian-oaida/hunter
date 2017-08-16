@@ -5,10 +5,7 @@ import com.edin.hunter.graph.DirectedGraph;
 import com.edin.hunter.graph.Edge;
 import com.edin.hunter.graph.Node;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,10 +19,21 @@ public class CRunner extends BaseRunner {
     private static final String compileLibraries = " -lpthread -lm";
     private File executableFile;
 
+    private void log(Object logString){
+        if(execOutputStream != null){
+            execOutputStream.println(logString.toString());
+        }
+    }
+    public CRunner(String pathToSource, String dependencyDirectory, PrintStream out) throws Exception{
+        super();
+        this.execOutputStream = out;
+        compile(pathToSource, dependencyDirectory);
+    }
     public CRunner(String pathToSource, String dependencyDirectory) throws Exception {
         super();
-
-
+        compile(pathToSource, dependencyDirectory);
+    }
+    private void compile(String pathToSource, String dependencyDirectory) throws Exception {
         try {
             executableFile = File.createTempFile("runner", "run");
             executableFile.deleteOnExit();
@@ -50,7 +58,7 @@ public class CRunner extends BaseRunner {
         command.add("-lm");
 
         ProcessBuilder pb = new ProcessBuilder(command);
-        System.out.println(pb.command());
+        log(pb.command());
         try {
 
             Process p = pb.start();
@@ -62,23 +70,23 @@ public class CRunner extends BaseRunner {
                 builder.append(line);
                 builder.append(System.getProperty("line.separator"));
             }
-            System.out.println(builder.toString());
+            log(builder.toString());
             p.waitFor();
 
-            System.out.println(p.exitValue());
+            log(p.exitValue());
         } catch (IOException e) {
 
             e.printStackTrace();
             throw new Exception("could not compile " + pathToSource);
         }
-
-    }
-    @Override
-    public void finalize(){
     }
 
     @Override
     public void run(String ...programArgs) {
+        dataFlowGraph = null;
+        staticCallGraph = null;
+        dynamicCallGraph = null;
+
         dataFlowGraph = new DirectedGraph("Data Flow DirectedGraph");
         staticCallGraph = new DirectedGraph("Static Call DirectedGraph");
         dynamicCallGraph = new DirectedGraph("Dynamic Call DirectedGraph");
@@ -93,12 +101,13 @@ public class CRunner extends BaseRunner {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        long byteCount = 0;
         BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
         try {
             String line;
             String currentStaticBlockId = null;
             while( (line = reader.readLine()) != null){
-
+                byteCount += line.getBytes().length;
                 if(line.startsWith("BC")){
 
                     String[] args = line.replace("BC", "").trim().split("\\|");

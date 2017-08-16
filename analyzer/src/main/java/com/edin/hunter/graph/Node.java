@@ -30,7 +30,7 @@ public class Node {
 
     private InstructionType instructionType = InstructionType.NONE;
 
-    public InstructionType instructionType() {
+    public InstructionType getInstructionType() {
         return instructionType;
     }
 
@@ -195,7 +195,12 @@ public class Node {
         for(Map.Entry<String, String> attribute : attributes.entrySet()){
             sb.append(",");
             sb.append("\"").append(attribute.getKey()).append("\": ");
-            sb.append("\"").append(attribute.getValue().replace(" ", "").replace("\\","").replace("\"", "'")).append("\"");
+            try{
+                sb.append("\"").append(attribute.getValue().replace(" ", "").replace("\\","").replace("\"", "'")).append("\"");
+
+            }catch (NullPointerException e){
+                e.printStackTrace();
+            }
         }
         sb.append("}");
         return sb.toString();

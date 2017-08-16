@@ -18,11 +18,11 @@ public class DirectedGraph implements Iterable<Node>{
     protected Map<Integer, Node> nodeMap = new HashMap<>();
     protected int maxNodeId = 0;
     private void generateColourArray(){
-        colorArray = new String[4 * 4 * 4];
-        for(int i = 0; i < 4; i++){
-            for(int j = 0; j < 4; j++){
-                for(int k = 0; k < 4; k++){
-                    colorArray[i*16 + j*4 + k] = String.format("rgb(%d, %d, %d)", (i*64), (k*64), (j*64));
+        colorArray = new String[8 * 8 * 8];
+        for(int i = 0; i < 8; i++){
+            for(int j = 0; j < 8; j++){
+                for(int k = 0; k < 8; k++){
+                    colorArray[i*64 + j*8 + k] = String.format("rgb(%d, %d, %d)", (i*64), (k*64), (j*64));
                 }
             }
         }

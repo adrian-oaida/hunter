@@ -10,21 +10,24 @@ import java.util.List;
 
 import static com.edin.hunter.graph.DirectedGraph.ATTR_COLOR;
 
-public class InstructionStructuralDetector extends LatticeDetector {
-    private DirectedGraph staticCallGraph;
-    private DirectedGraph dynamicCallGraph;
+public class OLMDetector extends LatticeDetector implements StructuralDetector{
 
-    public InstructionStructuralDetector(BaseRunner runner) {
+    public OLMDetector(BaseRunner runner) {
         super(runner);
+        this.staticCallGraph = staticCallGraph.clone();
+        this.dynamicCallGraph = dynamicCallGraph.clone();
     }
 
-    private void matchOnStructure(){
+    public DirectedGraph getDynamicCallGraph(){
+        return dynamicCallGraph;
+    }
+    @Override
+    public boolean containsStructure() {
         int color = 2;
         List<Node> startRegion = new ArrayList<>();
         List<Node> endRegion = new ArrayList<>();
-
         for(Node node : dynamicCallGraph){
-            if(node.instructionType() == Node.InstructionType.ITERATIVE){
+            if(node.getInstructionType() == Node.InstructionType.ITERATIVE){
                 for(Edge edge : node.getOutgoingEdges()){
                     if(dataFlowGraph.getNode(edge.getTarget().getId()) != null){
                         Node dataNode = dataFlowGraph.getNode(edge.getTarget().getId());
@@ -39,22 +42,27 @@ public class InstructionStructuralDetector extends LatticeDetector {
                         }
                     }
                 }
-                //this is a region, need to split it into trees
-                //then need to check for a dependency between trees
-                //then need to find the region that contains the stop node
-                //then work our way up until we find the stop node
 
                 color+=1;
             }
 
         }
+//        for(Node staticNode : staticCallGraph){
+//            if(staticNode.getInstructionType() == Node.InstructionType.ITERATIVE){
+//                for(Node dynamicNode : staticNode.getAssociatedNodes()){
+//                    for(Edge outgoingEdge : dynamicNode.getOutgoingEdges()){
+//
+//                    }
+//                }
+//            }
+//        }
         if(endRegion.size() > 0){
             Node tmp = endRegion.get(0);
             boolean hasNext = true;
             while(hasNext){
                 hasNext = false;
                 for(Edge edge: tmp.getIncomingEdges()){
-                    if(edge.getSource().getAttribute("regionId").equals(tmp.getAttribute("regionId"))){
+                    if(edge.getSource().getAttribute("regionId") != null && edge.getSource().getAttribute("regionId").equals(tmp.getAttribute("regionId"))){
                         endRegion.add(edge.getSource());
                         tmp = edge.getSource();
                         hasNext = true;
@@ -63,14 +71,19 @@ public class InstructionStructuralDetector extends LatticeDetector {
             }
             List<List<Node>> pipeline = matchLattice(endRegion);
             if(pipeline != null){
+                int latticeSize = 0;
                 for(List<Node> stage : pipeline){
                     for(Node node : stage){
+                        latticeSize++;
                         node.setAttribute(ATTR_COLOR, "red");
                     }
+                }
+                if(latticeSize == dataFlowGraph.getNodeCount()){
+                    return true;
                 }
 
             }
         }
-
+        return false;
     }
 }

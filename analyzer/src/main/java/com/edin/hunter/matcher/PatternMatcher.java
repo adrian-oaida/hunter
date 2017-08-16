@@ -15,18 +15,19 @@ public class PatternMatcher {
 
     private StructuralDetector detector;
     private AgglomerationConstrictor constrictor;
+    private BaseRunner run;
 
-
-    public PatternMatcher(){
+    public PatternMatcher(BaseRunner run){
         this.detector = detector;
         this.constrictor = constrictor;
+        this.run = run;
 
         //need to configure the lattice matching heuristic
         //need to configure the aglomeration tackling heursitcs heuristic
 
     }
 
-    public void match(StructuralDetector detector, AgglomerationConstrictor constrictor){
+    public boolean match(StructuralDetector detector, AgglomerationConstrictor constrictor){
 
         this.dataFlowGraph = constrictor.getDataFlowGraph();
 
@@ -39,13 +40,24 @@ public class PatternMatcher {
             throw new MalformedGraphException("The graph contains to root node");
         }
 
-        //
-//        if(!detector.containsStructure()){
-            constrictor.eliminateAgglomeration();
-            detector.containsStructure();
+//        constrictor.eliminateAgglomeration();
+////        constrictor.eliminateAgglomeration();
+////        constrictor.eliminateAgglomeration();
+//        detector.containsStructure();
 
-            //this would be the final decision point
-//        }
+        while(!detector.containsStructure()){
+            int oldSCGSize = constrictor.getStaticCallGraph().getNodeCount();
+            int oldDCGSize = constrictor.getDynamicCallGraph().getNodeCount();
+            int oldDFGSize = constrictor.getDataFlowGraph().getNodeCount();
+
+            constrictor.eliminateAgglomeration();
+            if(oldSCGSize == constrictor.getStaticCallGraph().getNodeCount() &&
+                    oldDCGSize == constrictor.getDynamicCallGraph().getNodeCount() &&
+                    oldDFGSize == constrictor.getDataFlowGraph().getNodeCount()){
+                return false;
+            }
+        }
+        return true;
 
     }
 }
