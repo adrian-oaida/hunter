@@ -76,13 +76,14 @@ void *worker(void *arg){
         //wait for other workers to catch to star the stage
         wait_for_barrier();
     }
+    basic_block_id = enter_block(2, worker_id, "for(int i = 0 ; i < data_size; i++)");
     for(int i = 0 ; i < data_size; i++){
-        basic_block_id = enter_block(2, worker_id, "for(int i = 0 ; i < data_size; i++)");
-            basic_block_id = enter_block(3, worker_id, "switch(worker_id % 3)");
+        basic_block_id = enter_block(3, worker_id, "for(int i = 0 ; i < data_size; i++)");
+            basic_block_id = enter_block(4, worker_id, "switch(worker_id % 3)");
             switch(worker_id % 3){
                 case 0:
-                    basic_block_id = enter_block(4, worker_id, "case 0:");
-                        basic_block_id = enter_block(5, worker_id, "data[i] = data[i] + 23");
+                    basic_block_id = enter_block(5, worker_id, "case 0:");
+                        basic_block_id = enter_block(6, worker_id, "data[i] = data[i] + 23");
 
                             data[i] = data[i] + 23;
 
@@ -92,17 +93,18 @@ void *worker(void *arg){
                     exit_block(worker_id);
                     break;
                 case 1:
-                    basic_block_id = enter_block(6, worker_id, "case 1:");
-                        basic_block_id = enter_block(7, worker_id, "tmp = data[i]");
+                    basic_block_id = enter_block(7, worker_id, "case 1:");
+                        basic_block_id = enter_block(8, worker_id, "tmp = data[i]");
 
                             tmp = data[i];
 
                         data_flow_trace(shadow_data[i], basic_block_id, worker_id);
                         shadow_tmp = basic_block_id;
                         exit_block(worker_id);
+                        basic_block_id = enter_block(9, worker_id, "while(tmp != 0)");
                         while(tmp != 0){
-                            basic_block_id = enter_block(8, worker_id, "while(tmp != 0)");
-                                basic_block_id = enter_block(9, worker_id, "tmp = tmp / 3");
+                            basic_block_id = enter_block(10, worker_id, "while(tmp != 0)");
+                                basic_block_id = enter_block(11, worker_id, "tmp = tmp / 3");
 
                                     tmp = tmp / 3;
 
@@ -111,7 +113,9 @@ void *worker(void *arg){
                                 exit_block(worker_id);
                             exit_block(worker_id);
                         }
-                        basic_block_id = enter_block(10, worker_id, "data[i] = tmp");
+                        exit_block(worker_id);
+
+                        basic_block_id = enter_block(12, worker_id, "data[i] = tmp");
 
                             data[i] = tmp;
 
@@ -121,10 +125,10 @@ void *worker(void *arg){
                     exit_block(worker_id);
                     break;
                 case 2:
-                    enter_block(11, worker_id, "case 2:");
+                    enter_block(13, worker_id, "case 2:");
                         if(i % 3 == 0){
-                            basic_block_id = enter_block(12, worker_id, "if(i % 3 == 0)");
-                                basic_block_id = enter_block(13, worker_id, "data[i] = 4");
+                            basic_block_id = enter_block(14, worker_id, "if(i % 3 == 0)");
+                                basic_block_id = enter_block(15, worker_id, "data[i] = 4");
 
                                     data[i] = 4;
 
@@ -132,8 +136,8 @@ void *worker(void *arg){
                                 exit_block(worker_id);
                             exit_block(worker_id);
                         }else{
-                            enter_block(14, worker_id, "if(i % 3 == 0) else");
-                                basic_block_id = enter_block(11, worker_id, "data[i]++");
+                            enter_block(16, worker_id, "if(i % 3 == 0) else");
+                                basic_block_id = enter_block(17, worker_id, "data[i]++");
 
                                     data[i]++;
 
@@ -148,8 +152,8 @@ void *worker(void *arg){
             exit_block(worker_id);
             wait_for_barrier();
         exit_block(worker_id);
-
     }
+    exit_block(worker_id);
 
     for(int i = 0; i < (num_workers - worker_id -1); i++){
         //wait for other workers to catch up to end the stage

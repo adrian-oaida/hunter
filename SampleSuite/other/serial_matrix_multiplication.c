@@ -1,7 +1,6 @@
 #include<stdlib.h>
 #include<stdio.h>
-#include "../tools/trace_helper.h"
-#include "../tools/matrix_op.h"
+#include "../tools/tools.h"
 
 //matrix dimensions ; n x m * m x p = n x p
 int n,m,p;
@@ -17,20 +16,17 @@ int main(int argc, char *argv[]){
 
     fscanf(f, "%d %d %d", &n, &m, &p);
 
-    m_a = alloc_matrix(n, m);
-    m_b = alloc_matrix(m, p);
+    m_a = alloc_int_matrix(n, m);
+    m_b = alloc_int_matrix(m, p);
 
-    m_r = alloc_matrix(n, p);
+    m_r = alloc_int_matrix(n, p);
     init_int_matrix(m_r, n, p);
 
-    shadow_m_a = alloc_matrix(n, m);
-    init_int_matrix(shadow_m_a, n, m);
+    shadow_m_a = get_trace_matrix(n, m);
 
-    shadow_m_b = alloc_matrix(m, p);
-    init_int_matrix(shadow_m_b, m, p);
+    shadow_m_b = get_trace_matrix(m, p);
 
-    shadow_m_r = alloc_matrix(n, p);
-    init_int_matrix(shadow_m_r, n, p);
+    shadow_m_r = get_trace_matrix(n, p);
 
     trace_init();
     int basic_block_id;

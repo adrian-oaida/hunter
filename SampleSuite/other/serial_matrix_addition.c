@@ -16,9 +16,9 @@ int main(int argc, char *argv[]){
     int n, m;
     fscanf(f, "%d %d\n", &n, &m);
 
-    m_a = alloc_matrix(n, m);
-    m_b = alloc_matrix(n, m);
-    m_r = alloc_matrix(n, m);
+    m_a = alloc_int_matrix(n, m);
+    m_b = alloc_int_matrix(n, m);
+    m_r = alloc_int_matrix(n, m);
 
     shadow_m_a = get_trace_matrix(n, m);
     shadow_m_b = get_trace_matrix(n, m);

@@ -84,9 +84,10 @@ void *worker(void *arg){
     int tmp;
 
 
+    basic_block_id = enter_block(2, worker_id,"for(int i = 0; i < data_size; i++)");
     for(int i = 0; i < data_size; i++){
-        basic_block_id = enter_block(2, worker_id,"for(int i = 0; i < data_size; i++)");
-            basic_block_id = enter_block(3, worker_id, "worker_state = worker_state + data[i]");
+        basic_block_id = enter_block(3, worker_id,"for(int i = 0; i < data_size; i++)");
+            basic_block_id = enter_block(4, worker_id, "worker_state = worker_state + data[i]");
 
                 worker_state = worker_state + data[i];
 
@@ -94,25 +95,26 @@ void *worker(void *arg){
             data_flow_trace(shadow_worker_state, basic_block_id, worker_id);
             shadow_worker_state = basic_block_id;
             exit_block(worker_id);
-            basic_block_id = enter_block(4, worker_id, "other_pipe = data[i]");
+            basic_block_id = enter_block(5, worker_id, "other_pipe = data[i]");
 
                 other_pipe = data[i];
 
             data_flow_trace(shadow_data[i], basic_block_id, worker_id);
             shadow_other_pipe = basic_block_id;
             exit_block(worker_id);
-            basic_block_id = enter_block(5, worker_id, "tmp = data[i]");
+            basic_block_id = enter_block(6, worker_id, "tmp = data[i]");
 
                 tmp = worker_state;
 
             data_flow_trace(shadow_worker_state, basic_block_id, worker_id);
             shadow_tmp = basic_block_id;
             exit_block(worker_id);
+            basic_block_id = enter_block(7, worker_id, "for(int j = 0; j < 6; j++)");
             for(int j = 0; j < 6; j++){
-                basic_block_id = enter_block(5, worker_id, "for(int j = 0; j < 6; j++)");
+                basic_block_id = enter_block(8, worker_id, "for(int j = 0; j < 6; j++)");
                     if(j % 2 == 0){
-                        basic_block_id = enter_block(6, worker_id, "if(j % 2 == 0)");
-                            basic_block_id = enter_block(7, worker_id, "tmp = tmp * 5");
+                        basic_block_id = enter_block(9, worker_id, "if(j % 2 == 0)");
+                            basic_block_id = enter_block(10, worker_id, "tmp = tmp * 5");
 
                                 tmp = tmp * 5;
 
@@ -121,8 +123,8 @@ void *worker(void *arg){
                             exit_block(worker_id);
                         exit_block(worker_id);
                     }else{
-                        basic_block_id = enter_block(8, worker_id, "if(j % 2 == 0) else");
-                            basic_block_id = enter_block(8, worker_id, "tmp = tmp * 5");
+                        basic_block_id = enter_block(11, worker_id, "if(j % 2 == 0) else");
+                            basic_block_id = enter_block(12, worker_id, "tmp = tmp * 5");
 
                                 tmp = tmp * other_pipe;
 
@@ -134,14 +136,16 @@ void *worker(void *arg){
                     }
                 exit_block(worker_id);
             }
-            basic_block_id = enter_block(9, worker_id, "other_pipe *= 3");
+            exit_block(worker_id);
+
+            basic_block_id = enter_block(13, worker_id, "other_pipe *= 3");
 
                 other_pipe *= 3;
 
             data_flow_trace(shadow_other_pipe, basic_block_id, worker_id);
             shadow_other_pipe = basic_block_id;
             exit_block(worker_id);
-            basic_block_id = enter_block(10, worker_id, "data[i] = tmp + other_pipe");
+            basic_block_id = enter_block(14, worker_id, "data[i] = tmp + other_pipe");
 
                 data[i] = tmp + other_pipe;
 
@@ -154,6 +158,7 @@ void *worker(void *arg){
         exit_block(worker_id);
 
     }
+    exit_block(worker_id);
 
     for(int i = 0; i < (num_workers - worker_id -1); i++){
         //wait for other workers to catch up to end the stage

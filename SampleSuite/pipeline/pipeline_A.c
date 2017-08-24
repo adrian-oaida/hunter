@@ -89,10 +89,10 @@ void *worker(void *arg){
         wait_for_barrier();
     }
 
-
+    basic_block_id = enter_block(2, worker_id,"for(int i = 0; i < data_size; i++)");
     for(int i = 0; i < data_size; i++){
-        basic_block_id = enter_block(2, worker_id,"for(int i = 0; i < data_size; i++)");
-            basic_block_id = enter_block(3, worker_id,"worker_state = worker_state + 1");
+        basic_block_id = enter_block(3, worker_id,"for(int i = 0; i < data_size; i++)");
+            basic_block_id = enter_block(4, worker_id,"worker_state = worker_state + 1");
 
             worker_state = worker_state + 1;
 
@@ -100,7 +100,7 @@ void *worker(void *arg){
             shadow_worker_state = basic_block_id;
             exit_block(worker_id);
 
-            basic_block_id = enter_block(4, worker_id, "data[i] = data[i] + worker_id");
+            basic_block_id = enter_block(5, worker_id, "data[i] = data[i] + worker_id");
 
                 data[i] = data[i] + worker_id;
 
@@ -113,6 +113,7 @@ void *worker(void *arg){
             wait_for_barrier();
         exit_block(worker_id);
     }
+    exit_block(worker_id);
 
 
     for(int i = 0; i < (num_workers - worker_id -1); i++){
