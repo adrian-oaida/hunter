@@ -28,6 +28,9 @@ public abstract class LatticeDetector{
     }
 
     protected List<List<Node>> matchLattice(List<Node> seedStage){
+        if(seedStage == null || seedStage.size() < 2)
+            return null;
+
         List<List<Node>> pipeline = new ArrayList<>();
         //TODO need to check that there is at most a one to one relationship
         //otherwise we have a stencil pattern
@@ -50,21 +53,20 @@ public abstract class LatticeDetector{
                 }
             }
             currentStage = newStage;
-            pipeline.add(currentStage);
+            if(currentStage.size() > 0)
+                pipeline.add(currentStage);
         }while(newStage.size() != 0);
 
-        int maxRowSize = 0;
+        int maxRowSize = seedStage.size();
         //validate lattice structure
         for(int i = 0; i < pipeline.size(); i++){
-            if(maxRowSize == 0){
-                maxRowSize = pipeline.get(i).size();
-            }else{
-                if(pipeline.get(i).size() > maxRowSize){
-                    return null;
-                }
+            if(pipeline.get(i).size() != maxRowSize){
+                return null;
             }
 
         }
+        if(pipeline.size() < 2)
+            return null;
         return pipeline;
     }
 

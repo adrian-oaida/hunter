@@ -11,12 +11,25 @@ import java.util.List;
  * Created by dude on 6/23/17.
  */
 public class Parser {
-    public static void main(String[] args){
+    private String pathToSource;
+    private String dependencyDirectory;
+    public Parser(String pathToSource, String dependencyDirectory){
+        this.pathToSource = pathToSource;
+        this.dependencyDirectory = dependencyDirectory;
+    }
+    public void compile(){
+        List<String> command = new ArrayList<>();
+
+        File dependecyDirectoryFile = new File(dependencyDirectory);
+        for(File f: dependecyDirectoryFile.listFiles()){
+            if(f.getName().endsWith(".c")){
+                command.add(f.getAbsolutePath());
+            }
+        }
+    }
+    public void parse(){
         StringBuilder compileSourceFilesSB = new StringBuilder();
 
-        String pathToSource = "/Users/dude/edin/msc/hunter/TestPrograms/sorting/vanilla_serial_mergesort.c";
-
-        String dependencyDirectory = "";
 
         List<String> command = new ArrayList<>();
         command.add("clang");
@@ -25,20 +38,10 @@ public class Parser {
         command.add(pathToSource);
 
 
-//        File dependecyDirectoryFile = new File(dependencyDirectory);
-//        for(File f: dependecyDirectoryFile.listFiles()){
-//            if(f.getName().endsWith(".c")){
-//                command.add(f.getAbsolutePath());
-//            }
-//        }
-
         ProcessBuilder pb = new ProcessBuilder(command);
         System.out.println(pb.command());
+        String astString = null;
         try {
-
-
-//            pb.redirectError(new File("/tmp/runner.error"));
-//            pb.redirectOutput(new File("/tmp/runner.output"));
 
             Process p = pb.start();
             BufferedReader reader =
@@ -49,9 +52,8 @@ public class Parser {
                 builder.append(line);
                 builder.append(System.getProperty("line.separator"));
             }
-            String result = builder.toString();
+            astString = builder.toString();
             p.waitFor();
-            System.out.println(result);
             System.out.println(p.exitValue());
         } catch (IOException e) {
 
@@ -59,5 +61,7 @@ public class Parser {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        System.out.println(astString);
+        ArrayList<String> functions = new ArrayList<>();
     }
 }

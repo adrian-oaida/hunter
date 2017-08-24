@@ -62,7 +62,7 @@ public class GraphViewer {
         public void run() {
             String graphAsDot = graph.toDotString();
 
-//            System.out.println(graphAsDot);
+            System.out.println(graphAsDot);
             List<String> command = new ArrayList<>();
             command.add("dot");
             command.add("-Tpng");
@@ -138,9 +138,7 @@ public class GraphViewer {
         graphFrame.getContentPane().setSize(graphImageSize);
         graphFrame.setSize(graphImageSize);
         graphFrame.setLocation(currentDisplayDevice.getDefaultConfiguration().getBounds().x, currentDisplayDevice.getDefaultConfiguration().getBounds().y);
-//        graphFrame.pack();
         graphFrame.setVisible(true);
-        System.out.println("should have displayed");
 
     }
 }

@@ -41,8 +41,9 @@ public class PatternMatcher {
         }
 
 //        constrictor.eliminateAgglomeration();
-////        constrictor.eliminateAgglomeration();
-////        constrictor.eliminateAgglomeration();
+//        constrictor.eliminateAgglomeration();
+//        constrictor.eliminateAgglomeration();
+//        constrictor.eliminateAgglomeration();
 //        detector.containsStructure();
 
         while(!detector.containsStructure()){

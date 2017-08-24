@@ -37,7 +37,7 @@ public class DINConstrictor extends AgglomerationConstrictor {
         }
         List<Node> result = new ArrayList<>();
         for(int i = 0; i < depthArray.length; i++){
-            if(depthArray[i] == max){
+            if(depthArray[i] == max && dynamicCallGraph.getNode(i) != null && dynamicCallGraph.getNode(i).getInDegree() != 0){
                 result.add(dynamicCallGraph.getNode(i));
             }
         }

@@ -47,15 +47,7 @@ public class OLMDetector extends LatticeDetector implements StructuralDetector{
             }
 
         }
-//        for(Node staticNode : staticCallGraph){
-//            if(staticNode.getInstructionType() == Node.InstructionType.ITERATIVE){
-//                for(Node dynamicNode : staticNode.getAssociatedNodes()){
-//                    for(Edge outgoingEdge : dynamicNode.getOutgoingEdges()){
-//
-//                    }
-//                }
-//            }
-//        }
+
         if(endRegion.size() > 0){
             Node tmp = endRegion.get(0);
             boolean hasNext = true;

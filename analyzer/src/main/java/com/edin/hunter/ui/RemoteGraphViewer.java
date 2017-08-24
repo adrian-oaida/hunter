@@ -47,20 +47,22 @@ public class RemoteGraphViewer {
     }
     static class GraphJSONHandler implements HttpHandler {
         private DirectedGraph graph;
+        private String payload;
         public GraphJSONHandler(DirectedGraph graph){
             this.graph = graph;
+            this.payload = graph.toJSON();
         }
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
-            String response = graph.toJSON();
+
             Headers headers = httpExchange.getResponseHeaders();
             headers.add("Access-Control-Allow-Origin", "*");
             headers.add("Access-Control-Allow-Headers", "Cache-Control");
             headers.add("Content-Type", "application/json");
             headers.add("Cache-Control", "max-age=1209600");
-            httpExchange.sendResponseHeaders(200, response.length());
+            httpExchange.sendResponseHeaders(200, payload.length());
             OutputStream os = httpExchange.getResponseBody();
-            os.write(response.getBytes());
+            os.write(payload.getBytes());
             os.close();
         }
     }

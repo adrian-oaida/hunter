@@ -1,8 +1,10 @@
 package com.edin.hunter.main;
 
 import com.edin.hunter.matcher.PatternMatcher;
+import com.edin.hunter.matcher.constrictor.DIINConstrictor;
 import com.edin.hunter.matcher.constrictor.DINConstrictor;
 import com.edin.hunter.matcher.constrictor.MCINConstrictor;
+import com.edin.hunter.matcher.detector.OLMDetector;
 import com.edin.hunter.matcher.detector.SLMDetector;
 import com.edin.hunter.runner.BaseRunner;
 import com.edin.hunter.runner.CRunner;
@@ -89,7 +91,7 @@ public class AccuracyRunner {
 
 
                 PatternMatcher matcher = new PatternMatcher(programRun);
-                boolean found = matcher.match(new SLMDetector(programRun), new DINConstrictor(programRun));
+                boolean found = matcher.match(new OLMDetector(programRun), new DIINConstrictor(programRun));
 
                 analysisTime = (float)(System.nanoTime() - startTime) / (1000000000);
                 analysisMemory = execMemory + ((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) - startMemory)/(1024 * 1024);

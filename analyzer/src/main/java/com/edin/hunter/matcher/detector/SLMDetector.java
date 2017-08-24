@@ -48,7 +48,7 @@ public class SLMDetector extends LatticeDetector implements StructuralDetector {
 
 
         List<List<Node>> finalLattice = null;
-        if(cornerNodes.size() > (startNodes.size() + stopNodes.size()))
+        if(cornerNodes.size() > (startNodes.size() + stopNodes.size()) && (cornerNodes.size() > dataFlowGraph.getNodeCount() / 2))
             return false;
         for(Node n : cornerNodes){
 
@@ -75,12 +75,7 @@ public class SLMDetector extends LatticeDetector implements StructuralDetector {
                     node.setAttribute(ATTR_COLOR, "red");
                 }
             }
-//            int otherSubGraphsSize = 0;
-//            for(Node node : dataFlowGraph){
-//                if(node.getAttribute(ATTR_COLOR) != "red"){
-//                    otherSubGraphsSize++;
-//                }
-//            }
+
             if(latticeNodeSize == dataFlowGraph.getNodeCount()){
                 return true;
             }else{
